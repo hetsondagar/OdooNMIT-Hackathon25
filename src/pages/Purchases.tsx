@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { purchasesAPI } from '@/services/api';
 import { Purchase } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,16 +33,24 @@ const Purchases: React.FC = () => {
     }
   }, [user, navigate]);
 
-  const loadPurchases = () => {
+  const loadPurchases = async () => {
     if (!user) return;
 
     try {
-      const userPurchases = dataStore.getPurchasesByUser(user.id);
-      // Sort by purchase date (newest first)
-      userPurchases.sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime());
-      setPurchases(userPurchases);
-    } catch (error) {
+      setIsLoading(true);
+      const response = await purchasesAPI.getAll();
+      if (response.success && response.data?.purchases) {
+        // Filter purchases by current user and sort by purchase date (newest first)
+        const userPurchases = response.data.purchases
+          .filter((purchase: any) => purchase.userId === user.id)
+          .sort((a: any, b: any) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime());
+        setPurchases(userPurchases);
+      } else {
+        toast.error('Failed to load purchase history');
+      }
+    } catch (error: any) {
       console.error('Error loading purchases:', error);
+      toast.error('Failed to load purchase history. Please try again.');
     } finally {
       setIsLoading(false);
     }

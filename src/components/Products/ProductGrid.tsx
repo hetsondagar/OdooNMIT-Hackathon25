@@ -1,78 +1,118 @@
-import ProductCard from "./ProductCard";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-
-// Mock data - replace with actual API data
-const mockProducts = [
-  {
-    id: "1",
-    title: "Vintage Denim Jacket",
-    price: 45,
-    image: product1,
-    category: "Fashion",
-    seller: "EcoStyler",
-    isLiked: false,
-    carbonSaved: 8.5,
-    condition: "Excellent"
-  },
-  {
-    id: "2",
-    title: "Handmade Pottery Set",
-    price: 32,
-    image: product2,
-    category: "Home & Garden",
-    seller: "CraftedGreen",
-    isLiked: true,
-    carbonSaved: 4.2,
-    condition: "Like New"
-  },
-  {
-    id: "3",
-    title: "Eco-Friendly Sneakers",
-    price: 68,
-    image: product1,
-    category: "Fashion",
-    seller: "SustainableSteps",
-    isLiked: false,
-    carbonSaved: 12.3,
-    condition: "Good"
-  },
-  {
-    id: "4",
-    title: "Bamboo Picture Frames",
-    price: 24,
-    image: product2,
-    category: "Home & Garden",
-    seller: "NaturalFrames",
-    isLiked: false,
-    carbonSaved: 3.1,
-    condition: "Excellent"
-  },
-  {
-    id: "5",
-    title: "Vintage Leather Bag",
-    price: 89,
-    image: product1,
-    category: "Accessories",
-    seller: "RetroFinds",
-    isLiked: true,
-    carbonSaved: 15.7,
-    condition: "Very Good"
-  },
-  {
-    id: "6",
-    title: "Succulent Garden Kit",
-    price: 38,
-    image: product2,
-    category: "Home & Garden",
-    seller: "GreenThumb",
-    isLiked: false,
-    carbonSaved: 6.4,
-    condition: "New"
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { productsAPI, cartAPI, wishlistAPI } from '@/services/api';
+import { toast } from 'sonner';
+import { PremiumProductGrid } from '@/components/ui/premium-product-card';
+import { Product } from '@/types';
 
 const ProductGrid = () => {
+  const { user } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadProducts();
+    if (user) {
+      loadFavorites();
+    }
+  }, [user]);
+
+  const loadProducts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await productsAPI.getAll();
+      if (response.success && response.data?.products) {
+        setProducts(response.data.products);
+      } else {
+        toast.error('Failed to load products');
+      }
+    } catch (error: any) {
+      console.error('Error loading products:', error);
+      toast.error('Failed to load products');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFavorites = async () => {
+    if (!user) {
+      setFavorites([]);
+      return;
+    }
+
+    try {
+      const response = await wishlistAPI.get();
+      if (response.success && response.data?.wishlistItems) {
+        const favoriteIds = response.data.wishlistItems.map((item: any) => item.productId);
+        setFavorites(favoriteIds);
+      }
+    } catch (error: any) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+
+  const handleAddToCart = async (productId: string) => {
+    if (!user) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    // Find the product to check if it belongs to the current user
+    const product = products.find(p => p.id === productId);
+    if (product && product.sellerId === user.id) {
+      toast.error('You cannot add your own product to cart!');
+      return;
+    }
+
+    try {
+      const response = await cartAPI.add(productId, 1);
+      if (response.success) {
+        toast.success('Item added to cart!');
+      } else {
+        toast.error('Failed to add item to cart');
+      }
+    } catch (error: any) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart');
+    }
+  };
+
+  const handleToggleFavorite = async (productId: string) => {
+    if (!user) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    try {
+      const isFavorite = favorites.includes(productId);
+      
+      if (isFavorite) {
+        // Remove from wishlist
+        const response = await wishlistAPI.remove(productId);
+        if (response.success) {
+          setFavorites(prev => prev.filter(id => id !== productId));
+          toast.success('Removed from wishlist');
+        } else {
+          toast.error('Failed to remove from wishlist');
+        }
+      } else {
+        // Add to wishlist
+        const response = await wishlistAPI.add(productId);
+        if (response.success) {
+          setFavorites(prev => [...prev, productId]);
+          toast.success('Added to wishlist!');
+        } else {
+          toast.error('Failed to add to wishlist');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Failed to update wishlist');
+    }
+  };
+
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -85,23 +125,33 @@ const ProductGrid = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
-          {mockProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              {...product}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="bg-gray-200 rounded-lg h-64 mb-4"></div>
+                <div className="bg-gray-200 rounded h-4 mb-2"></div>
+                <div className="bg-gray-200 rounded h-4 w-3/4"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <PremiumProductGrid
+            products={products.slice(0, 8)} // Show only first 8 products on homepage
+            onAddToCart={handleAddToCart}
+            onToggleFavorite={handleToggleFavorite}
+            favorites={favorites}
+          />
+        )}
         
         <div className="text-center mt-12">
-          <a 
-            href="#" 
+          <Link 
+            to="/products"
             className="inline-flex items-center gap-2 text-eco-primary font-semibold hover:text-eco-secondary transition-colors"
           >
             View All Products
             <span className="ml-1">→</span>
-          </a>
+          </Link>
         </div>
       </div>
     </section>

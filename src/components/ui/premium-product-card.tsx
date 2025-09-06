@@ -70,12 +70,12 @@ export function PremiumProductCard({
           {/* Favorite Button */}
           <button
             onClick={handleToggleFavorite}
-            className="absolute top-3 right-3 p-2 rounded-full glass hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 shadow-lg"
           >
             <Heart 
               className={cn(
                 'h-4 w-4 transition-colors duration-300',
-                isFavorite ? 'fill-red-500 text-red-500' : 'text-white'
+                isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
               )} 
             />
           </button>
@@ -123,7 +123,7 @@ export function PremiumProductCard({
             </h3>
             <div className="flex items-center justify-between">
               <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                ${product.price.toFixed(2)}
+                ${(parseFloat(product.price) || 0).toFixed(2)}
               </span>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 text-yellow-500 fill-current" />

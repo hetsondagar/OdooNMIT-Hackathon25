@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { productsAPI } from '@/services/api';
 import { ProductCategory } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,15 +11,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Upload, Save } from 'lucide-react';
+import { ArrowLeft, Upload, Save, X } from 'lucide-react';
 
 const EditProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -39,13 +42,17 @@ const EditProduct: React.FC = () => {
     return null;
   }
 
-  const loadProduct = () => {
+  const loadProduct = async () => {
     if (!id) return;
 
     try {
-      const product = dataStore.getProductById(id);
-      if (product) {
+      setIsLoading(true);
+      setError('');
+      const response = await productsAPI.getById(id);
+      if (response.success && response.data?.product) {
+        const product = response.data.product;
         if (product.sellerId !== user?.id) {
+          toast.error('You can only edit your own products');
           navigate('/my-listings');
           return;
         }
@@ -60,8 +67,9 @@ const EditProduct: React.FC = () => {
       } else {
         setError('Product not found');
       }
-    } catch (error) {
-      setError('Failed to load product');
+    } catch (error: any) {
+      console.error('Error loading product:', error);
+      setError('Failed to load product. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -73,6 +81,72 @@ const EditProduct: React.FC = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Image size should be less than 2MB');
+        return;
+      }
+
+      // Compress and create preview
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions (max 800px width/height)
+        const maxSize = 800;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+        
+        setUploadedImage(compressedDataUrl);
+        setFormData(prev => ({
+          ...prev,
+          imageUrl: compressedDataUrl
+        }));
+      };
+      
+      img.src = URL.createObjectURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setUploadedImage(null);
+    setFormData(prev => ({
+      ...prev,
+      imageUrl: ''
+    }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleCategoryChange = (value: string) => {
@@ -113,7 +187,7 @@ const EditProduct: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const updatedProduct = dataStore.updateProduct(id, {
+      const response = await productsAPI.update(id, {
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: formData.category as ProductCategory,
@@ -121,15 +195,19 @@ const EditProduct: React.FC = () => {
         imageUrl: formData.imageUrl || '/placeholder.svg'
       });
 
-      if (updatedProduct) {
+      if (response.success) {
+        toast.success('Product updated successfully!');
         setSuccess('Product updated successfully!');
         setTimeout(() => {
           navigate('/my-listings');
         }, 2000);
       } else {
+        toast.error('Failed to update product');
         setError('Failed to update product');
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error updating product:', error);
+      toast.error('Failed to update product. Please try again.');
       setError('Failed to update product. Please try again.');
     } finally {
       setIsLoading(false);
@@ -252,29 +330,64 @@ const EditProduct: React.FC = () => {
                 />
               </div>
 
-              {/* Image URL */}
+              {/* Image Upload */}
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-                <div className="flex space-x-2">
-                  <Input
-                    id="imageUrl"
-                    name="imageUrl"
-                    type="url"
-                    placeholder="https://example.com/image.jpg"
-                    value={formData.imageUrl}
-                    onChange={handleInputChange}
+                <Label>Product Image</Label>
+                
+                {/* Image Preview */}
+                {(uploadedImage || formData.imageUrl) && (
+                  <div className="relative w-full max-w-xs">
+                    <img
+                      src={uploadedImage || formData.imageUrl}
+                      alt="Product preview"
+                      className="w-full h-48 object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={removeImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Upload Button */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
                   />
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    className="px-3"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center space-x-2"
                   >
                     <Upload className="w-4 h-4" />
+                    <span>{(uploadedImage || formData.imageUrl) ? 'Change Image' : 'Upload Image'}</span>
                   </Button>
+                  
+                  {/* Fallback URL input */}
+                  {!(uploadedImage || formData.imageUrl) && (
+                    <div className="flex-1">
+                      <Input
+                        placeholder="Or enter image URL"
+                        value={formData.imageUrl}
+                        onChange={handleInputChange}
+                        name="imageUrl"
+                      />
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-gray-500">
-                  Leave empty to use placeholder image
+                
+                <p className="text-sm text-gray-500">
+                  Upload a local image or enter an image URL. Max size: 5MB
                 </p>
               </div>
 

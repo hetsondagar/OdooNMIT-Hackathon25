@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import Header from "@/components/Layout/Header";
 import HeroSection from "@/components/Hero/HeroSection";
 import CategoryFilter from "@/components/Categories/CategoryFilter";
@@ -13,8 +14,61 @@ import {
   Target
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { productsAPI, purchasesAPI } from "@/services/api";
+import { toast } from "sonner";
 
 const Index = () => {
+  const [stats, setStats] = useState({
+    totalItems: 0,
+    totalUsers: 0,
+    totalCo2Saved: 0,
+    userSatisfaction: 98
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Load products count
+      const productsResponse = await productsAPI.getAll();
+      let totalItems = 0;
+      if (productsResponse.success && productsResponse.data?.products) {
+        totalItems = productsResponse.data.products.length;
+      }
+
+      // Load purchases to calculate CO2 saved
+      const purchasesResponse = await purchasesAPI.getAll();
+      let totalCo2Saved = 0;
+      if (purchasesResponse.success && purchasesResponse.data?.purchases) {
+        totalCo2Saved = purchasesResponse.data.purchases.length * 2.5; // 2.5kg CO2 per item
+      }
+
+      setStats({
+        totalItems,
+        totalUsers: 15000, // Static for now, can be fetched from backend later
+        totalCo2Saved,
+        userSatisfaction: 98
+      });
+    } catch (error: any) {
+      console.error('Error loading stats:', error);
+      toast.error('Failed to load statistics');
+      // Set fallback stats
+      setStats({
+        totalItems: 50000,
+        totalUsers: 15000,
+        totalCo2Saved: 2500,
+        userSatisfaction: 98
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -38,7 +92,9 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Leaf className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-1">50K+</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-1">
+                  {isLoading ? '...' : `${(stats.totalItems / 1000).toFixed(0)}K+`}
+                </h3>
                 <p className="text-sm text-muted-foreground">Items Given New Life</p>
               </GlassCard>
 
@@ -46,7 +102,9 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Users className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-1">15K+</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-1">
+                  {isLoading ? '...' : `${(stats.totalUsers / 1000).toFixed(0)}K+`}
+                </h3>
                 <p className="text-sm text-muted-foreground">Eco Warriors</p>
               </GlassCard>
 
@@ -54,7 +112,9 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Zap className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-1">2.5T</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-1">
+                  {isLoading ? '...' : `${(stats.totalCo2Saved / 1000).toFixed(1)}T`}
+                </h3>
                 <p className="text-sm text-muted-foreground">CO₂ Saved (kg)</p>
               </GlassCard>
 
@@ -62,7 +122,9 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Target className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-1">98%</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-1">
+                  {isLoading ? '...' : `${stats.userSatisfaction}%`}
+                </h3>
                 <p className="text-sm text-muted-foreground">User Satisfaction</p>
               </GlassCard>
             </div>

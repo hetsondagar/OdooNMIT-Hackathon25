@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { communityAPI } from '@/services/api';
+import { toast } from 'sonner';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -53,106 +55,70 @@ const Community: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'groups' | 'posts' | 'events'>('groups');
   const [searchQuery, setSearchQuery] = useState('');
+  const [communityGroups, setCommunityGroups] = useState<CommunityGroup[]>([]);
+  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const communityGroups: CommunityGroup[] = [
-    {
-      id: '1',
-      name: 'Eco Warriors NYC',
-      description: 'New York City\'s largest sustainable living community',
-      memberCount: 2847,
-      category: 'Local',
-      location: 'New York, NY',
-      isJoined: true,
-      avatar: '/placeholder.svg',
-      recentActivity: '2 hours ago',
-      tags: ['sustainability', 'local', 'events']
-    },
-    {
-      id: '2',
-      name: 'Zero Waste Champions',
-      description: 'Sharing tips and tricks for zero waste living',
-      memberCount: 1923,
-      category: 'Lifestyle',
-      location: 'Global',
-      isJoined: false,
-      avatar: '/placeholder.svg',
-      recentActivity: '5 hours ago',
-      tags: ['zero-waste', 'tips', 'lifestyle']
-    },
-    {
-      id: '3',
-      name: 'Sustainable Fashion',
-      description: 'Ethical fashion and second-hand clothing enthusiasts',
-      memberCount: 3456,
-      category: 'Fashion',
-      location: 'Global',
-      isJoined: true,
-      avatar: '/placeholder.svg',
-      recentActivity: '1 day ago',
-      tags: ['fashion', 'sustainable', 'clothing']
-    },
-    {
-      id: '4',
-      name: 'Green Tech Innovators',
-      description: 'Technology solutions for environmental challenges',
-      memberCount: 1234,
-      category: 'Technology',
-      location: 'Global',
-      isJoined: false,
-      avatar: '/placeholder.svg',
-      recentActivity: '2 days ago',
-      tags: ['technology', 'innovation', 'green-tech']
+  useEffect(() => {
+    if (user) {
+      loadCommunityData();
     }
-  ];
+  }, [user]);
 
-  const communityPosts: CommunityPost[] = [
-    {
-      id: '1',
-      author: {
-        name: 'Sarah Chen',
-        avatar: '/placeholder.svg',
-        level: 'Eco Warrior'
-      },
-      content: 'Just completed my first month of zero-waste living! Here are my top 5 tips that made the biggest difference...',
-      image: '/placeholder.svg',
-      likes: 42,
-      comments: 8,
-      shares: 12,
-      timestamp: '2 hours ago',
-      tags: ['zero-waste', 'tips', 'lifestyle']
-    },
-    {
-      id: '2',
-      author: {
-        name: 'Mike Rodriguez',
-        avatar: '/placeholder.svg',
-        level: 'Climate Champion'
-      },
-      content: 'Found this amazing vintage leather jacket at a local thrift store. The quality is incredible and I saved it from going to landfill!',
-      image: '/placeholder.svg',
-      likes: 28,
-      comments: 5,
-      shares: 7,
-      timestamp: '4 hours ago',
-      tags: ['thrift', 'fashion', 'vintage']
-    },
-    {
-      id: '3',
-      author: {
-        name: 'Emma Thompson',
-        avatar: '/placeholder.svg',
-        level: 'Green Innovator'
-      },
-      content: 'Our community garden just harvested 200kg of organic vegetables! Sharing the bounty with local food banks.',
-      image: '/placeholder.svg',
-      likes: 67,
-      comments: 15,
-      shares: 23,
-      timestamp: '6 hours ago',
-      tags: ['gardening', 'community', 'food']
+  const loadCommunityData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Load groups
+      const groupsResponse = await communityAPI.getGroups();
+      if (groupsResponse.success && groupsResponse.data?.groups) {
+        const transformedGroups: CommunityGroup[] = groupsResponse.data.groups.map((group: any) => ({
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          memberCount: group.memberCount || 0,
+          category: group.category || 'General',
+          location: group.location || 'Global',
+          isJoined: group.isJoined || false,
+          avatar: group.avatar || '/placeholder.svg',
+          recentActivity: group.recentActivity || 'Recently',
+          tags: group.tags || []
+        }));
+        setCommunityGroups(transformedGroups);
+      }
+
+      // Load posts
+      const postsResponse = await communityAPI.getPosts();
+      if (postsResponse.success && postsResponse.data?.posts) {
+        const transformedPosts: CommunityPost[] = postsResponse.data.posts.map((post: any) => ({
+          id: post.id,
+          author: {
+            name: post.author?.name || 'Anonymous',
+            avatar: post.author?.avatar || '/placeholder.svg',
+            level: post.author?.level || 'Member'
+          },
+          content: post.content,
+          image: post.image,
+          likes: post.likes || 0,
+          comments: post.comments || 0,
+          shares: post.shares || 0,
+          timestamp: post.timestamp || 'Recently',
+          tags: post.tags || []
+        }));
+        setCommunityPosts(transformedPosts);
+      }
+    } catch (error: any) {
+      console.error('Error loading community data:', error);
+      setError('Failed to load community data. Please try again.');
+      toast.error('Failed to load community data. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
 
+  // Static events data (can be moved to backend later)
   const upcomingEvents = [
     {
       id: '1',
@@ -196,6 +162,17 @@ const Community: React.FC = () => {
     );
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading community...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -208,6 +185,13 @@ const Community: React.FC = () => {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Connect with like-minded eco-warriors, share experiences, and learn from the community
             </p>
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">
+                  ⚠️ <strong>Error:</strong> {error}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Search and Filter */}

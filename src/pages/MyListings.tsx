@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { productsAPI } from '@/services/api';
 import { Product } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -33,45 +34,65 @@ const MyListings: React.FC = () => {
     }
   }, [user, navigate]);
 
-  const loadProducts = () => {
+  const loadProducts = async () => {
     if (!user) return;
 
     try {
-      const userProducts = dataStore.getProductsBySeller(user.id);
-      setProducts(userProducts);
-    } catch (error) {
+      setIsLoading(true);
+      const response = await productsAPI.getAll();
+      if (response.success && response.data?.products) {
+        // Filter products by current user
+        const userProducts = response.data.products.filter((product: Product) => product.sellerId === user.id);
+        setProducts(userProducts);
+      } else {
+        toast.error('Failed to load your listings');
+      }
+    } catch (error: any) {
       console.error('Error loading products:', error);
+      toast.error('Failed to load your listings. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDelete = (productId: string) => {
+  const handleDelete = async (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
       try {
-        dataStore.deleteProduct(productId);
-        setProducts(products.filter(p => p.id !== productId));
-        setMessage('Product deleted successfully');
-        setTimeout(() => setMessage(''), 3000);
-      } catch (error) {
+        const response = await productsAPI.delete(productId);
+        if (response.success) {
+          setProducts(products.filter(p => p.id !== productId));
+          toast.success('Product deleted successfully');
+          setMessage('Product deleted successfully');
+          setTimeout(() => setMessage(''), 3000);
+        } else {
+          toast.error('Failed to delete product');
+        }
+      } catch (error: any) {
         console.error('Error deleting product:', error);
+        toast.error('Failed to delete product. Please try again.');
       }
     }
   };
 
-  const handleToggleAvailability = (productId: string) => {
+  const handleToggleAvailability = async (productId: string) => {
     try {
       const product = products.find(p => p.id === productId);
       if (product) {
-        dataStore.updateProduct(productId, { isAvailable: !product.isAvailable });
-        setProducts(products.map(p => 
-          p.id === productId ? { ...p, isAvailable: !p.isAvailable } : p
-        ));
-        setMessage(`Product ${!product.isAvailable ? 'activated' : 'deactivated'} successfully`);
-        setTimeout(() => setMessage(''), 3000);
+        const response = await productsAPI.update(productId, { isAvailable: !product.isAvailable });
+        if (response.success) {
+          setProducts(products.map(p => 
+            p.id === productId ? { ...p, isAvailable: !p.isAvailable } : p
+          ));
+          toast.success(`Product ${!product.isAvailable ? 'activated' : 'deactivated'} successfully`);
+          setMessage(`Product ${!product.isAvailable ? 'activated' : 'deactivated'} successfully`);
+          setTimeout(() => setMessage(''), 3000);
+        } else {
+          toast.error('Failed to update product availability');
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating product:', error);
+      toast.error('Failed to update product availability. Please try again.');
     }
   };
 
@@ -180,7 +201,7 @@ const MyListings: React.FC = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Value</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${products.reduce((sum, p) => sum + p.price, 0).toFixed(2)}
+                    ${products.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -253,7 +274,7 @@ const MyListings: React.FC = () => {
 
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-lg font-bold text-green-600">
-                        ${product.price.toFixed(2)}
+                        ${(parseFloat(product.price) || 0).toFixed(2)}
                       </span>
                     </div>
 

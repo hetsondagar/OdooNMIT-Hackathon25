@@ -1,4 +1,4 @@
-import { User } from '@/types';
+import { User, Product } from '@/types';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -128,7 +128,7 @@ export const authAPI = {
 
 // Products API functions
 export const productsAPI = {
-  getAll: async () => {
+  getAll: async (): Promise<{ success: boolean; data?: { products: Product[] } }> => {
     return await apiRequest('/products');
   },
   
@@ -136,7 +136,7 @@ export const productsAPI = {
     return await apiRequest(`/products/${id}`);
   },
   
-  create: async (productData: any) => {
+  create: async (productData: any): Promise<{ success: boolean; data?: any }> => {
     return await apiRequest('/products', {
       method: 'POST',
       body: JSON.stringify(productData),
@@ -159,11 +159,11 @@ export const productsAPI = {
 
 // Cart API functions
 export const cartAPI = {
-  get: async () => {
+  get: async (): Promise<{ success: boolean; data?: { cartItems: any[] } }> => {
     return await apiRequest('/cart');
   },
   
-  add: async (productId: string, quantity: number = 1) => {
+  add: async (productId: string, quantity: number = 1): Promise<{ success: boolean }> => {
     return await apiRequest('/cart', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity }),
@@ -192,18 +192,18 @@ export const cartAPI = {
 
 // Wishlist API functions
 export const wishlistAPI = {
-  get: async () => {
+  get: async (): Promise<{ success: boolean; data?: { wishlistItems: any[] }; message?: string }> => {
     return await apiRequest('/wishlist');
   },
   
-  add: async (productId: string) => {
+  add: async (productId: string): Promise<{ success: boolean }> => {
     return await apiRequest('/wishlist', {
       method: 'POST',
       body: JSON.stringify({ productId }),
     });
   },
   
-  remove: async (productId: string) => {
+  remove: async (productId: string): Promise<{ success: boolean }> => {
     return await apiRequest(`/wishlist/${productId}`, {
       method: 'DELETE',
     });
@@ -216,7 +216,7 @@ export const badgesAPI = {
     return await apiRequest('/badges');
   },
   
-  getUserBadges: async () => {
+  getUserBadges: async (): Promise<{ success: boolean; data?: { badges: any[] } }> => {
     return await apiRequest('/badges/user');
   },
 };
@@ -235,6 +235,24 @@ export const communityAPI = {
     return await apiRequest('/community/posts', {
       method: 'POST',
       body: JSON.stringify(postData),
+    });
+  },
+};
+
+// Purchases API functions
+export const purchasesAPI = {
+  getAll: async (): Promise<{ success: boolean; data?: { purchases: any[] } }> => {
+    return await apiRequest('/purchases');
+  },
+  
+  getById: async (id: string) => {
+    return await apiRequest(`/purchases/${id}`);
+  },
+  
+  create: async (purchaseData: any) => {
+    return await apiRequest('/purchases', {
+      method: 'POST',
+      body: JSON.stringify(purchaseData),
     });
   },
 };
@@ -262,6 +280,7 @@ export default {
   products: productsAPI,
   cart: cartAPI,
   wishlist: wishlistAPI,
+  purchases: purchasesAPI,
   badges: badgesAPI,
   community: communityAPI,
   carbon: carbonAPI,
