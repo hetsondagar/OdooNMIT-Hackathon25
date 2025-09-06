@@ -25,6 +25,7 @@ import {
   Clock,
   Tag
 } from 'lucide-react';
+import PleaseLogin from '@/components/Warning/PleaseLogin';
 
 interface WishlistItem {
   id: string;
@@ -225,14 +226,7 @@ const Wishlist: React.FC = () => {
   const categories = ['all', 'Fashion', 'Home & Garden', 'Electronics', 'Books', 'Sports & Outdoors', 'Accessories'];
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30 flex items-center justify-center">
-        <GlassCard className="p-8 text-center">
-          <h2 className="text-xl font-semibold mb-4">Please sign in to view your wishlist</h2>
-          <PremiumButton variant="eco">Sign In</PremiumButton>
-        </GlassCard>
-      </div>
-    );
+    return <PleaseLogin message='Please sign in to view your wishlist'/>
   }
 
   return (
