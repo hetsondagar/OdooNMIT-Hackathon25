@@ -1,8 +1,12 @@
 import { ArrowRight, Recycle, Users, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-image.jpg";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+
+  const navigate = useNavigate();
+
   return (
     <section className="relative overflow-hidden bg-gradient-hero py-20 lg:py-32">
       <div className="absolute inset-0 bg-black/20" />
@@ -33,11 +37,15 @@ const HeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button variant="hero" size="lg" className="group">
+              <Button variant="hero" size="lg" className="group" onClick={()=>{
+                navigate("/Products");
+              }}>
                 Start Shopping
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+              <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white/20" onClick = {()=>{
+                navigate("/products/new");
+              }}>
                 List Your Items
               </Button>
             </div>
