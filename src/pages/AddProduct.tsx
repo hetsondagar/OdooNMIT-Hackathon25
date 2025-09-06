@@ -143,6 +143,12 @@ const AddProduct: React.FC = () => {
       return;
     }
 
+    if (!formData.imageUrl.trim()) {
+      setError('Please upload a product image or provide an image URL');
+      toast.error('Product image is required to list your item');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -151,7 +157,7 @@ const AddProduct: React.FC = () => {
         description: formData.description.trim(),
         category: formData.category as ProductCategory,
         price: parseFloat(formData.price),
-        imageUrl: formData.imageUrl || '/placeholder.svg',
+        imageUrl: formData.imageUrl,
         isAvailable: true
       });
 
@@ -278,10 +284,13 @@ const AddProduct: React.FC = () => {
 
               {/* Image Upload */}
               <div className="space-y-2">
-                <Label>Product Image</Label>
+                <Label>Product Image *</Label>
+                <p className="text-sm text-muted-foreground">
+                  Upload a clear photo of your product. This is required to list your item.
+                </p>
                 
                 {/* Image Preview */}
-                {uploadedImage && (
+                {uploadedImage ? (
                   <div className="relative w-full max-w-xs">
                     <img
                       src={uploadedImage}
@@ -297,6 +306,16 @@ const AddProduct: React.FC = () => {
                     >
                       <X className="w-4 h-4" />
                     </Button>
+                  </div>
+                ) : (
+                  <div className="w-full max-w-xs h-48 border-2 border-dashed border-muted-foreground/25 rounded-lg flex flex-col items-center justify-center bg-muted/20">
+                    <ImageIcon className="w-12 h-12 text-muted-foreground/50 mb-2" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      No image uploaded
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 text-center">
+                      Upload an image to continue
+                    </p>
                   </div>
                 )}
 
@@ -323,7 +342,7 @@ const AddProduct: React.FC = () => {
                   {!uploadedImage && (
                     <div className="flex-1">
                       <Input
-                        placeholder="Or enter image URL"
+                        placeholder="Or enter image URL (required)"
                         value={formData.imageUrl}
                         onChange={handleInputChange}
                         name="imageUrl"

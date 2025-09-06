@@ -183,6 +183,12 @@ const EditProduct: React.FC = () => {
       return;
     }
 
+    if (!formData.imageUrl.trim()) {
+      setError('Please upload a product image or provide an image URL');
+      toast.error('Product image is required to list your item');
+      return;
+    }
+
     if (!id) return;
 
     setIsLoading(true);
@@ -193,7 +199,7 @@ const EditProduct: React.FC = () => {
         description: formData.description.trim(),
         category: formData.category as ProductCategory,
         price: parseFloat(formData.price),
-        imageUrl: formData.imageUrl || '/placeholder.svg'
+        imageUrl: formData.imageUrl
       });
 
       if (response.success) {
