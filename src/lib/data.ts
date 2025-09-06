@@ -58,50 +58,8 @@ class DataStore {
       this.users.push(sampleUser);
     }
 
-    if (this.products.length === 0) {
-      const sampleProducts: Product[] = [
-        {
-          id: '1',
-          title: 'Vintage Wooden Chair',
-          description: 'Beautiful vintage wooden chair in excellent condition. Perfect for any eco-friendly home.',
-          category: ProductCategory.FURNITURE,
-          price: 45.99,
-          imageUrl: '/placeholder.svg',
-          sellerId: '1',
-          seller: this.users[0],
-          isAvailable: true,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: '2',
-          title: 'Organic Cotton T-Shirt',
-          description: 'Soft, comfortable organic cotton t-shirt. Size M, barely worn.',
-          category: ProductCategory.CLOTHING,
-          price: 12.50,
-          imageUrl: '/placeholder.svg',
-          sellerId: '1',
-          seller: this.users[0],
-          isAvailable: true,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: '3',
-          title: 'Sustainable Living Book',
-          description: 'Complete guide to sustainable living practices. Great condition.',
-          category: ProductCategory.BOOKS,
-          price: 8.99,
-          imageUrl: '/placeholder.svg',
-          sellerId: '1',
-          seller: this.users[0],
-          isAvailable: true,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      ];
-      this.products.push(...sampleProducts);
-    }
+    // Products will be loaded from the backend API
+    // No hardcoded products in the frontend
 
     this.saveToStorage();
   }
