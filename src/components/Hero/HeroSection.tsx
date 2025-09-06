@@ -67,17 +67,6 @@ const HeroSection = () => {
       <div className="relative container mx-auto px-4 z-10">
         <div className="max-w-5xl mx-auto text-center text-white">
           <div className={`transition-all duration-2000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            {/* Premium Badge */}
-            <div className="mb-8 flex justify-center">
-              <div className="group relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-                <div className="relative flex items-center gap-3 rounded-full bg-white/20 px-6 py-3 backdrop-blur-md border border-white/30">
-                  <Sparkles className="h-5 w-5 text-yellow-300 animate-spin" style={{ animationDuration: '3s' }} />
-                  <span className="text-sm font-semibold tracking-wide">AI-Powered Eco Marketplace</span>
-                  <Zap className="h-4 w-4 text-yellow-300 animate-pulse" />
-                </div>
-              </div>
-            </div>
             
             {/* Main Heading with Typewriter Effect */}
             <h1 className="mb-8 text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">

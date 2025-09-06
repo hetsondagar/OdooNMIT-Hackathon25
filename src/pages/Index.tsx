@@ -4,7 +4,6 @@ import HeroSection from "@/components/Hero/HeroSection";
 import CategoryFilter from "@/components/Categories/CategoryFilter";
 import ProductGrid from "@/components/Products/ProductGrid";
 import { GlassCard } from "@/components/ui/glass-card";
-import { FloatingActions } from "@/components/ui/floating-actions";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { Button } from "@/components/ui/button";
 import { 
@@ -151,8 +150,6 @@ const Index = () => {
         <ProductGrid />
       </main>
 
-      {/* Floating Actions */}
-      <FloatingActions variant="tech" />
     </div>
   );
 };
