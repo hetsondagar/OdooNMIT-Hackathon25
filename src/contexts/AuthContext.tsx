@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { dataStore } from '@/lib/data';
+import { authAPI } from '@/services/api';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -31,71 +32,90 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const savedUser = localStorage.getItem('ecofinds_current_user');
-    if (savedUser) {
+    // Check if user is logged in with valid token
+    const checkAuthStatus = async () => {
       try {
-        const userData = JSON.parse(savedUser);
-        setUser(userData);
+        if (authAPI.isAuthenticated()) {
+          const userData = await authAPI.getCurrentUser();
+          setUser(userData);
+        }
       } catch (error) {
-        console.error('Error parsing saved user:', error);
-        localStorage.removeItem('ecofinds_current_user');
+        console.error('Error checking auth status:', error);
+        // Token might be invalid, clear it
+        authAPI.logout();
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    checkAuthStatus();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const foundUser = dataStore.findUserByEmail(email);
-      if (foundUser && foundUser.password === password) {
-        setUser(foundUser);
-        localStorage.setItem('ecofinds_current_user', JSON.stringify(foundUser));
+      const response = await authAPI.login(email, password);
+      
+      if (response.success && response.data?.user) {
+        setUser(response.data.user);
+        toast.success('Login successful! Welcome back!');
         return true;
+      } else {
+        toast.error(response.message || 'Login failed. Please check your credentials.');
+        return false;
       }
-      return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      toast.error(error.message || 'An error occurred during login. Please try again.');
       return false;
     }
   };
 
   const register = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<boolean> => {
     try {
-      // Check if user already exists
-      const existingUser = dataStore.findUserByEmail(userData.email);
-      if (existingUser) {
+      const response = await authAPI.register({
+        email: userData.email,
+        password: userData.password,
+        username: userData.username,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone,
+        address: userData.address,
+      });
+
+      if (response.success && response.data?.user) {
+        setUser(response.data.user);
+        toast.success('Registration successful! Welcome to EcoFinds!');
+        return true;
+      } else {
+        toast.error(response.message || 'Registration failed. Please try again.');
         return false;
       }
-
-      const newUser = dataStore.createUser(userData);
-      setUser(newUser);
-      localStorage.setItem('ecofinds_current_user', JSON.stringify(newUser));
-      return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
+      toast.error(error.message || 'An error occurred during registration. Please try again.');
       return false;
     }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('ecofinds_current_user');
+    authAPI.logout();
+    toast.success('Logged out successfully!');
   };
 
   const updateProfile = async (updates: Partial<User>): Promise<boolean> => {
     if (!user) return false;
 
     try {
-      const updatedUser = dataStore.updateUser(user.id, updates);
-      if (updatedUser) {
-        setUser(updatedUser);
-        localStorage.setItem('ecofinds_current_user', JSON.stringify(updatedUser));
-        return true;
-      }
-      return false;
+      // For now, we'll update locally since we don't have a profile update endpoint
+      // In a real app, you'd call an API endpoint here
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      toast.success('Profile updated successfully!');
+      return true;
     } catch (error) {
       console.error('Profile update error:', error);
+      toast.error('Failed to update profile. Please try again.');
       return false;
     }
   };

@@ -65,7 +65,7 @@ const Register: React.FC = () => {
       });
 
       if (success) {
-        navigate('/dashboard');
+        navigate('/');
       } else {
         setError('An account with this email already exists');
       }

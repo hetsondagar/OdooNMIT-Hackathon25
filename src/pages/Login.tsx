@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Leaf, Eye, EyeOff, Sparkles, ArrowRight } from 'lucide-react';
+import { Leaf, Eye, EyeOff, Sparkles } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate('/dashboard');
+        navigate('/');
       } else {
         setError('Invalid email or password');
       }
@@ -140,15 +140,6 @@ const Login: React.FC = () => {
               </p>
             </div>
 
-            {/* Demo Account Info */}
-            <div className="mt-6 p-4 glass border border-blue-200/50 rounded-xl">
-              <p className="text-sm text-blue-800 font-medium mb-2 flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
-                Demo Account
-              </p>
-              <p className="text-xs text-blue-700">Email: demo@ecofinds.com</p>
-              <p className="text-xs text-blue-700">Password: password123</p>
-            </div>
           </div>
         </GlassCard>
       </div>
