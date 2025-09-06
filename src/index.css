@@ -1,94 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* EcoFinds Design System - Sustainable marketplace colors and gradients */
+/* EcoFinds Premium Design System - Glassmorphism & Modern Typography */
 
 @layer base {
   :root {
-    /* Base colors - earth-inspired palette */
-    --background: 45 15% 97%;
-    --foreground: 165 25% 15%;
+    /* Modern Typography */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Base colors - premium earth-inspired palette */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    /* Card system */
+    /* Card system - glassmorphism */
     --card: 0 0% 100%;
-    --card-foreground: 165 25% 15%;
+    --card-foreground: 222.2 84% 4.9%;
 
     /* Popover system */
     --popover: 0 0% 100%;
-    --popover-foreground: 165 25% 15%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    /* Primary - deep forest green */
-    --primary: 165 85% 25%;
+    /* Primary - deep forest green with premium feel */
+    --primary: 142 76% 36%;
     --primary-foreground: 0 0% 98%;
-    --primary-light: 165 65% 45%;
-    --primary-glow: 165 75% 55%;
+    --primary-light: 142 70% 45%;
+    --primary-glow: 142 80% 55%;
 
-    /* Secondary - warm earth */
-    --secondary: 35 25% 90%;
-    --secondary-foreground: 165 25% 15%;
+    /* Secondary - warm earth with glassmorphism */
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 222.2 84% 4.9%;
 
-    /* Muted tones */
-    --muted: 35 15% 92%;
-    --muted-foreground: 165 15% 45%;
+    /* Muted tones - subtle and elegant */
+    --muted: 210 40% 98%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Accent - fresh green */
-    --accent: 140 60% 85%;
-    --accent-foreground: 165 85% 25%;
+    /* Accent - fresh green with premium glow */
+    --accent: 210 40% 98%;
+    --accent-foreground: 222.2 84% 4.9%;
 
-    /* Eco-specific colors */
-    --eco-primary: 165 85% 25%;
-    --eco-secondary: 140 70% 50%;
-    --eco-light: 140 45% 75%;
-    --eco-badge: 50 85% 65%;
+    /* Eco-specific colors - enhanced for premium feel */
+    --eco-primary: 142 76% 36%;
+    --eco-secondary: 158 64% 52%;
+    --eco-light: 142 70% 85%;
+    --eco-badge: 48 96% 89%;
 
-    /* Status colors */
-    --success: 140 70% 50%;
+    /* Status colors - modern and accessible */
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
-    --destructive: 0 75% 60%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --warning: 35 85% 60%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
 
-    /* Interface elements */
-    --border: 35 15% 88%;
-    --input: 35 15% 88%;
-    --ring: 165 85% 25%;
+    /* Interface elements - glassmorphism ready */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142 76% 36%;
 
-    /* Gradients */
+    /* Premium Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--eco-primary)), hsl(var(--eco-secondary)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--eco-primary)), hsl(var(--primary-light)));
-    --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
+    --gradient-card: linear-gradient(180deg, hsl(var(--card) / 0.8), hsl(var(--muted) / 0.6));
     --gradient-eco: linear-gradient(90deg, hsl(var(--eco-light)), hsl(var(--eco-badge)));
+    --gradient-glass: linear-gradient(135deg, hsl(var(--card) / 0.1), hsl(var(--muted) / 0.05));
 
-    /* Shadows */
-    --shadow-eco: 0 10px 30px -5px hsl(var(--eco-primary) / 0.2);
-    --shadow-card: 0 4px 20px -4px hsl(var(--foreground) / 0.1);
-    --shadow-hover: 0 8px 30px -6px hsl(var(--eco-primary) / 0.3);
+    /* Premium Shadows - glassmorphism */
+    --shadow-eco: 0 20px 40px -12px hsl(var(--eco-primary) / 0.15);
+    --shadow-card: 0 8px 32px -8px hsl(var(--foreground) / 0.08);
+    --shadow-hover: 0 16px 48px -12px hsl(var(--eco-primary) / 0.2);
+    --shadow-glass: 0 8px 32px -8px hsl(var(--foreground) / 0.1);
+    --shadow-floating: 0 24px 64px -12px hsl(var(--foreground) / 0.15);
 
-    /* Animations */
-    --transition-eco: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Premium Animations */
+    --transition-eco: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Glassmorphism Effects */
+    --glass-bg: hsl(var(--card) / 0.8);
+    --glass-border: hsl(var(--border) / 0.5);
+    --glass-blur: blur(16px);
 
     --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
+    /* Dark mode - premium glassmorphism */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -98,8 +107,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -115,7 +124,13 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 142 76% 36%;
+
+    /* Dark mode glassmorphism */
+    --glass-bg: hsl(var(--card) / 0.3);
+    --glass-border: hsl(var(--border) / 0.3);
+    --glass-blur: blur(20px);
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -133,6 +148,208 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
+
+  /* Premium Typography Hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl lg:text-5xl font-bold;
+  }
+
+  h2 {
+    @apply text-3xl lg:text-4xl font-bold;
+  }
+
+  h3 {
+    @apply text-2xl lg:text-3xl font-semibold;
+  }
+
+  h4 {
+    @apply text-xl lg:text-2xl font-semibold;
+  }
+}
+
+@layer utilities {
+  /* Glassmorphism Utilities */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-glass);
+  }
+
+  /* Premium Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-lift:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .hover-glow {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-glow:hover {
+    box-shadow: var(--shadow-eco);
+  }
+
+  /* Premium Button Styles */
+  .btn-premium {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
+  }
+
+  .btn-premium:hover {
+    transform: scale(1.05);
+  }
+
+  .btn-premium:active {
+    transform: scale(0.95);
+  }
+
+  .btn-premium::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+
+  .btn-premium:hover::before {
+    transform: translateX(100%);
+  }
+
+  /* Eco-themed Progress Indicators */
+  .progress-eco {
+    width: 100%;
+    background-color: rgb(229 231 235);
+    border-radius: 9999px;
+    height: 0.5rem;
+    overflow: hidden;
+  }
+
+  .progress-eco-fill {
+    height: 100%;
+    background: linear-gradient(to right, rgb(34 197 94), rgb(16 185 129));
+    border-radius: 9999px;
+    transition: all 1000ms ease-out;
+  }
+
+  /* Floating Elements */
+  .floating {
+    position: fixed;
+    z-index: 50;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Premium Shadows */
+  .shadow-premium {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-eco {
+    box-shadow: var(--shadow-eco);
+  }
+
+  .shadow-floating {
+    box-shadow: var(--shadow-floating);
+  }
+
+  .shadow-glass {
+    box-shadow: var(--shadow-glass);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-border/80;
 }
