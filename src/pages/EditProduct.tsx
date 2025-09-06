@@ -11,12 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-<<<<<<< HEAD
 import PageHeader from '@/components/PageHeader';
-import { ArrowLeft, Upload, Save } from 'lucide-react';
-=======
 import { ArrowLeft, Upload, Save, X } from 'lucide-react';
->>>>>>> d337f7639639938b175ce07271703f293dfa0f86
 
 const EditProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();

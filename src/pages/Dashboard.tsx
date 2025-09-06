@@ -140,7 +140,6 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-<<<<<<< HEAD
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
@@ -163,17 +162,6 @@ const Dashboard: React.FC = () => {
                 Logout
               </Button>
             </div>
-=======
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Navigation */}
-      <Header />
-      
-      {/* Page Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
->>>>>>> d337f7639639938b175ce07271703f293dfa0f86
           </div>
         </div>
       </div>

@@ -5,11 +5,7 @@ import { toast } from 'sonner';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { Badge } from '@/components/ui/badge';
-<<<<<<< HEAD
 import PageHeader from '@/components/PageHeader';
-=======
-import Header from '@/components/Layout/Header';
->>>>>>> d337f7639639938b175ce07271703f293dfa0f86
 import { 
   Heart, 
   ShoppingCart, 
@@ -240,7 +236,6 @@ const Wishlist: React.FC = () => {
   }
 
   return (
-<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
       <PageHeader title="My Wishlist" />
@@ -252,20 +247,6 @@ const Wishlist: React.FC = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent mb-4">
               My Wishlist
             </h1>
-=======
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30">
-      {/* Header Navigation */}
-      <Header />
-      
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-            
-            {/* Page Header */}
-            <div className="text-center">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
-                My Wishlist
-              </h1>
->>>>>>> d337f7639639938b175ce07271703f293dfa0f86
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Keep track of your favorite sustainable finds and never miss a great deal
               </p>
