@@ -21,6 +21,7 @@ import {
   Award,
   Leaf
 } from 'lucide-react';
+import PleaseLogin from '@/components/Warning/PleaseLogin';
 
 interface CommunityGroup {
   id: string;
@@ -152,14 +153,7 @@ const Community: React.FC = () => {
   );
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30 flex items-center justify-center">
-        <GlassCard className="p-8 text-center">
-          <h2 className="text-xl font-semibold mb-4">Please sign in to access the community</h2>
-          <PremiumButton variant="eco">Sign In</PremiumButton>
-        </GlassCard>
-      </div>
-    );
+    return <PleaseLogin message='Please sign in to access the community'/>
   }
 
   if (isLoading) {
