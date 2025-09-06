@@ -36,12 +36,12 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-            Browse
+            Browse All
           </Link>
-          <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+          <Link to="/categories" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
             Categories
           </Link>
-          <Link to="/platform" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+          <Link to="/community" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
             Community
           </Link>
           <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
@@ -136,48 +136,48 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden border-t glass-card">
           <nav className="flex flex-col p-4 gap-3">
-            <Link to="/products" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-              Browse
+            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+              Browse All
             </Link>
-            <Link to="/products" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+            <Link to="/categories" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               Categories
             </Link>
-            <Link to="/platform" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+            <Link to="/community" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               Community
             </Link>
-            <Link to="/" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+            <Link to="/" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               About
             </Link>
             
             {isAuthenticated ? (
               <>
-                <Link to="/products/new" className="mt-2">
+                <Link to="/products/new" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <PremiumButton variant="eco" className="w-full">
                     Sell Item
                   </PremiumButton>
                 </Link>
-                <Link to="/cart" className="mt-2">
+                <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <Button variant="outline" className="w-full hover-lift">
                     Cart ({cartItemCount})
                   </Button>
                 </Link>
-                <Link to="/dashboard" className="mt-2">
+                <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <Button variant="outline" className="w-full hover-lift">
                     Dashboard
                   </Button>
                 </Link>
-                <Button variant="ghost" onClick={handleLogout} className="mt-2 hover-lift">
+                <Button variant="ghost" onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="mt-2 hover-lift">
                   Logout
                 </Button>
               </>
             ) : (
               <>
-                <Link to="/login" className="mt-2">
+                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <Button variant="outline" className="w-full hover-lift">
                     Sign In
                   </Button>
                 </Link>
-                <Link to="/register" className="mt-2">
+                <Link to="/register" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <PremiumButton variant="eco" className="w-full">
                     Sign Up
                   </PremiumButton>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { dataStore } from '@/lib/data';
 import { Product, ProductCategory } from '@/types';
@@ -10,6 +10,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumProductGrid } from '@/components/ui/premium-product-card';
 import { FloatingActions, ScrollToTop } from '@/components/ui/floating-actions';
+import Header from '@/components/Layout/Header';
 import { 
   Search, 
   Filter, 
@@ -23,6 +24,7 @@ import {
 
 const Products: React.FC = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,7 +34,13 @@ const Products: React.FC = () => {
 
   useEffect(() => {
     loadProducts();
-  }, []);
+    
+    // Check for category parameter in URL
+    const categoryParam = searchParams.get('category');
+    if (categoryParam && categoryParam !== 'all') {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     filterAndSortProducts();
@@ -103,10 +111,21 @@ const Products: React.FC = () => {
     );
   };
 
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    if (category === 'all') {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category });
+    }
+  };
+
   const categories = Object.values(ProductCategory);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30">
+      <Header />
+      
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
         <div className="absolute inset-0 bg-black/10" />
@@ -146,7 +165,7 @@ const Products: React.FC = () => {
             </div>
 
             {/* Category Filter */}
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select value={selectedCategory} onValueChange={handleCategoryChange}>
               <SelectTrigger className="w-full lg:w-48 glass border-border/50">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
@@ -186,6 +205,7 @@ const Products: React.FC = () => {
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('all');
+                  setSearchParams({});
                 }}
                 className="hover-lift"
               >
