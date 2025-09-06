@@ -22,7 +22,8 @@ import {
   Package, 
   History,
   Plus,
-  LogOut
+  LogOut,
+  UserCircle
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -73,8 +74,8 @@ const Dashboard: React.FC = () => {
         // Load user's wishlist
         const wishlistResponse = await wishlistAPI.get();
         let wishlistItems: any[] = [];
-        if (wishlistResponse.success && wishlistResponse.data?.wishlist) {
-          wishlistItems = wishlistResponse.data.wishlist;
+        if (wishlistResponse.success && wishlistResponse.data?.wishlistItems) {
+          wishlistItems = wishlistResponse.data.wishlistItems;
         }
 
         setUserStats({
@@ -203,10 +204,16 @@ const Dashboard: React.FC = () => {
 
                 {/* Avatar */}
                 <div className="flex items-center space-x-4">
-                  <Avatar className="w-20 h-20">
+                  <Avatar className="w-20 h-20 border-4 border-primary/20 shadow-lg">
                     <AvatarImage src={user.avatar} alt={user.username} />
-                    <AvatarFallback className="text-lg">
-                      {user.firstName?.[0]}{user.lastName?.[0]}
+                    <AvatarFallback className="text-lg bg-gradient-to-br from-primary/10 to-emerald-500/10 text-primary">
+                      {user.avatar && user.avatar !== '/placeholder.svg' ? (
+                        <span className="text-2xl font-bold">
+                          {user.firstName?.[0]}{user.lastName?.[0]}
+                        </span>
+                      ) : (
+                        <UserCircle className="h-12 w-12 text-primary" />
+                      )}
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -415,7 +422,7 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Total Spent</span>
-                    <span className="text-sm font-medium">${userStats.totalSpent.toFixed(2)}</span>
+                    <span className="text-sm font-medium">₹{userStats.totalSpent.toFixed(0)}</span>
                   </div>
                 </div>
               </CardContent>

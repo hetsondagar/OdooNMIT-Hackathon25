@@ -22,7 +22,8 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Video,
-  FileText
+  FileText,
+  UserCircle
 } from 'lucide-react';
 
 interface ShareTemplate {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Eye, Star, MapPin, User } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Star, MapPin, User, Check, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -14,6 +14,7 @@ interface PremiumProductCardProps {
   onAddToCart?: (productId: string) => void;
   onToggleFavorite?: (productId: string) => void;
   isFavorite?: boolean;
+  isInCart?: boolean;
   showSellerInfo?: boolean;
   className?: string;
 }
@@ -23,6 +24,7 @@ export function PremiumProductCard({
   onAddToCart,
   onToggleFavorite,
   isFavorite = false,
+  isInCart = false,
   showSellerInfo = true,
   className
 }: PremiumProductCardProps) {
@@ -106,10 +108,23 @@ export function PremiumProductCard({
             <Button
               size="sm"
               onClick={handleAddToCart}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className={`flex-1 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+                isInCart 
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white' 
+                  : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white'
+              }`}
             >
-              <ShoppingCart className="h-3 w-3 mr-1" />
-              Add to Cart
+              {isInCart ? (
+                <>
+                  <Check className="h-3 w-3 mr-1" />
+                  In Cart
+                </>
+              ) : (
+                <>
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add to Cart
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -123,7 +138,7 @@ export function PremiumProductCard({
             </h3>
             <div className="flex items-center justify-between">
               <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                ${(parseFloat(product.price) || 0).toFixed(2)}
+                ₹{(parseFloat(product.price) || 0).toFixed(0)}
               </span>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 text-yellow-500 fill-current" />
@@ -171,6 +186,7 @@ interface ProductGridProps {
   onAddToCart?: (productId: string) => void;
   onToggleFavorite?: (productId: string) => void;
   favorites?: string[];
+  cartItems?: string[];
   className?: string;
 }
 
@@ -179,6 +195,7 @@ export function PremiumProductGrid({
   onAddToCart,
   onToggleFavorite,
   favorites = [],
+  cartItems = [],
   className
 }: ProductGridProps) {
   return (
@@ -197,6 +214,7 @@ export function PremiumProductGrid({
             onAddToCart={onAddToCart}
             onToggleFavorite={onToggleFavorite}
             isFavorite={favorites.includes(product.id)}
+            isInCart={cartItems.includes(product.id)}
           />
         </div>
       ))}

@@ -155,6 +155,7 @@ router.post('/', [
     'Home & Garden', 'Toys & Games', 'Automotive', 'Beauty & Health', 'Other'
   ]),
   body('price').isFloat({ min: 0 }),
+  body('imageUrl').isLength({ min: 1 }),
   body('condition').optional().isIn(['Like New', 'Excellent', 'Very Good', 'Good', 'Fair']),
   body('location').optional().isLength({ max: 255 }),
   body('carbonFootprint').optional().isFloat({ min: 0 }),

@@ -30,30 +30,30 @@ const seedDatabase = async () => {
         email: 'demo@ecofinds.com',
         password: 'password123',
         username: 'EcoWarrior',
-        firstName: 'John',
-        lastName: 'Doe',
-        phone: '+1234567890',
-        address: '123 Green Street, Eco City',
+        firstName: 'Arjun',
+        lastName: 'Sharma',
+        phone: '+919876543210',
+        address: '123 Green Park, Mumbai, Maharashtra',
         avatar: '/placeholder.svg'
       },
       {
         email: 'sarah@ecofinds.com',
         password: 'password123',
         username: 'GreenThumb',
-        firstName: 'Sarah',
-        lastName: 'Smith',
-        phone: '+1234567891',
-        address: '456 Sustainable Lane, Green Valley',
+        firstName: 'Priya',
+        lastName: 'Patel',
+        phone: '+919876543211',
+        address: '456 Sustainable Lane, Bangalore, Karnataka',
         avatar: '/placeholder.svg'
       },
       {
         email: 'mike@ecofinds.com',
         password: 'password123',
         username: 'EcoMike',
-        firstName: 'Mike',
-        lastName: 'Johnson',
-        phone: '+1234567892',
-        address: '789 Eco Drive, Nature Town',
+        firstName: 'Rahul',
+        lastName: 'Singh',
+        phone: '+919876543212',
+        address: '789 Eco Drive, Delhi, NCR',
         avatar: '/placeholder.svg'
       }
     ]);
@@ -66,11 +66,11 @@ const seedDatabase = async () => {
         title: 'Vintage Wooden Chair',
         description: 'Beautiful vintage wooden chair in excellent condition. Perfect for any eco-friendly home. Made from reclaimed oak wood.',
         category: 'Furniture',
-        price: 45.99,
+        price: 3817, // 45.99 USD * 83 INR
         imageUrl: '/placeholder.svg',
         sellerId: users[0].id,
         condition: 'Excellent',
-        location: 'Eco City',
+        location: 'Mumbai, Maharashtra',
         carbonFootprint: 8.5,
         tags: ['vintage', 'wooden', 'furniture', 'sustainable']
       },
@@ -78,11 +78,11 @@ const seedDatabase = async () => {
         title: 'Organic Cotton T-Shirt',
         description: 'Soft, comfortable organic cotton t-shirt. Size M, barely worn. Made from 100% organic cotton.',
         category: 'Clothing',
-        price: 12.50,
+        price: 1038, // 12.50 USD * 83 INR
         imageUrl: '/placeholder.svg',
         sellerId: users[0].id,
         condition: 'Like New',
-        location: 'Eco City',
+        location: 'Mumbai, Maharashtra',
         carbonFootprint: 2.3,
         tags: ['organic', 'cotton', 'clothing', 'sustainable']
       },
@@ -90,11 +90,11 @@ const seedDatabase = async () => {
         title: 'Sustainable Living Book',
         description: 'Complete guide to sustainable living practices. Great condition. Covers zero-waste lifestyle, renewable energy, and more.',
         category: 'Books',
-        price: 8.99,
+        price: 746, // 8.99 USD * 83 INR
         imageUrl: '/placeholder.svg',
         sellerId: users[1].id,
         condition: 'Very Good',
-        location: 'Green Valley',
+        location: 'Bangalore, Karnataka',
         carbonFootprint: 1.2,
         tags: ['books', 'sustainability', 'education', 'eco-friendly']
       },
@@ -102,11 +102,11 @@ const seedDatabase = async () => {
         title: 'Bamboo Kitchen Set',
         description: 'Complete bamboo kitchen utensil set. Includes spoons, spatulas, and tongs. All natural and biodegradable.',
         category: 'Home & Garden',
-        price: 24.99,
+        price: 2074, // 24.99 USD * 83 INR
         imageUrl: '/placeholder.svg',
         sellerId: users[1].id,
         condition: 'Excellent',
-        location: 'Green Valley',
+        location: 'Bangalore, Karnataka',
         carbonFootprint: 3.7,
         tags: ['bamboo', 'kitchen', 'utensils', 'biodegradable']
       },
@@ -114,11 +114,11 @@ const seedDatabase = async () => {
         title: 'Solar-Powered Phone Charger',
         description: 'Portable solar phone charger. Perfect for outdoor adventures. Charges most smartphones and tablets.',
         category: 'Electronics',
-        price: 35.00,
+        price: 2905, // 35.00 USD * 83 INR
         imageUrl: '/placeholder.svg',
         sellerId: users[2].id,
         condition: 'Good',
-        location: 'Nature Town',
+        location: 'Delhi, NCR',
         carbonFootprint: 5.2,
         tags: ['solar', 'electronics', 'charger', 'renewable']
       },
@@ -126,11 +126,11 @@ const seedDatabase = async () => {
         title: 'Recycled Glass Vase',
         description: 'Beautiful handcrafted vase made from recycled glass. Unique design and perfect for flowers or decoration.',
         category: 'Home & Garden',
-        price: 18.75,
+        price: 1556, // 18.75 USD * 83 INR
         imageUrl: '/placeholder.svg',
         sellerId: users[2].id,
         condition: 'Very Good',
-        location: 'Nature Town',
+        location: 'Delhi, NCR',
         carbonFootprint: 2.8,
         tags: ['recycled', 'glass', 'vase', 'handcrafted']
       }
@@ -235,33 +235,33 @@ const seedDatabase = async () => {
     // Create community groups
     const groups = await CommunityGroup.bulkCreate([
       {
-        name: 'EcoFinds Community',
-        description: 'The main community for all EcoFinds users. Share your sustainable finds, tips, and connect with like-minded individuals.',
+        name: 'EcoFinds India Community',
+        description: 'The main community for all EcoFinds users in India. Share your sustainable finds, tips, and connect with like-minded individuals.',
         category: 'General',
-        location: 'Global',
+        location: 'India',
         memberCount: 150,
         isPublic: true,
-        tags: ['sustainability', 'community', 'eco-friendly'],
+        tags: ['sustainability', 'community', 'eco-friendly', 'india'],
         createdBy: users[0].id
       },
       {
-        name: 'Vintage & Upcycled Finds',
-        description: 'Share your vintage discoveries and upcycling projects. Perfect for those who love giving old items new life.',
+        name: 'Mumbai Vintage & Upcycled Finds',
+        description: 'Share your vintage discoveries and upcycling projects in Mumbai. Perfect for those who love giving old items new life.',
         category: 'Vintage',
-        location: 'Global',
+        location: 'Mumbai, Maharashtra',
         memberCount: 75,
         isPublic: true,
-        tags: ['vintage', 'upcycling', 'repurposing'],
+        tags: ['vintage', 'upcycling', 'repurposing', 'mumbai'],
         createdBy: users[1].id
       },
       {
-        name: 'Zero Waste Warriors',
-        description: 'Connect with others committed to reducing waste. Share tips, challenges, and celebrate your zero-waste victories.',
+        name: 'Delhi Zero Waste Warriors',
+        description: 'Connect with others in Delhi committed to reducing waste. Share tips, challenges, and celebrate your zero-waste victories.',
         category: 'Zero Waste',
-        location: 'Global',
+        location: 'Delhi, NCR',
         memberCount: 60,
         isPublic: true,
-        tags: ['zero-waste', 'reduction', 'minimalism'],
+        tags: ['zero-waste', 'reduction', 'minimalism', 'delhi'],
         createdBy: users[2].id
       }
     ]);
@@ -273,20 +273,20 @@ const seedDatabase = async () => {
       {
         groupId: groups[0].id,
         authorId: users[0].id,
-        content: 'Just found this amazing vintage wooden chair on EcoFinds! It\'s perfect for my reading nook. Love how we can give old furniture new life! 🌱',
-        tags: ['vintage', 'furniture', 'sustainable']
+        content: 'Just found this amazing vintage wooden chair on EcoFinds! It\'s perfect for my reading nook in Mumbai. Love how we can give old furniture new life! 🌱',
+        tags: ['vintage', 'furniture', 'sustainable', 'mumbai']
       },
       {
         groupId: groups[1].id,
         authorId: users[1].id,
-        content: 'Check out my latest upcycling project! Turned an old ladder into a beautiful plant stand. What do you think? 🌿',
-        tags: ['upcycling', 'plants', 'diy']
+        content: 'Check out my latest upcycling project! Turned an old ladder into a beautiful plant stand for my Bangalore balcony. What do you think? 🌿',
+        tags: ['upcycling', 'plants', 'diy', 'bangalore']
       },
       {
         groupId: groups[2].id,
         authorId: users[2].id,
-        content: '30 days of zero waste challenge complete! Here are my top 5 tips for anyone starting their zero-waste journey...',
-        tags: ['zero-waste', 'tips', 'challenge']
+        content: '30 days of zero waste challenge complete in Delhi! Here are my top 5 tips for anyone starting their zero-waste journey in India...',
+        tags: ['zero-waste', 'tips', 'challenge', 'delhi']
       }
     ]);
 

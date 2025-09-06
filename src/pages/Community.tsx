@@ -20,7 +20,8 @@ import {
   Calendar,
   TrendingUp,
   Award,
-  Leaf
+  Leaf,
+  UserCircle
 } from 'lucide-react';
 
 interface CommunityGroup {
@@ -259,9 +260,15 @@ const Community: React.FC = () => {
                 {filteredGroups.map((group) => (
                   <GlassCard key={group.id} className="p-6 hover:scale-105 transition-all duration-300">
                     <div className="flex items-start gap-4 mb-4">
-                      <Avatar className="w-12 h-12">
+                      <Avatar className="w-12 h-12 border-2 border-primary/20">
                         <AvatarImage src={group.avatar} alt={group.name} />
-                        <AvatarFallback>{group.name[0]}</AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-primary/10 to-emerald-500/10 text-primary">
+                          {group.avatar && group.avatar !== '/placeholder.svg' ? (
+                            <span className="text-sm font-semibold">{group.name[0]}</span>
+                          ) : (
+                            <UserCircle className="h-6 w-6 text-primary" />
+                          )}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-1">{group.name}</h3>
@@ -324,9 +331,15 @@ const Community: React.FC = () => {
                 {communityPosts.map((post) => (
                   <GlassCard key={post.id} className="p-6">
                     <div className="flex items-start gap-4 mb-4">
-                      <Avatar className="w-10 h-10">
+                      <Avatar className="w-10 h-10 border-2 border-primary/20">
                         <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                        <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-primary/10 to-emerald-500/10 text-primary">
+                          {post.author.avatar && post.author.avatar !== '/placeholder.svg' ? (
+                            <span className="text-xs font-semibold">{post.author.name[0]}</span>
+                          ) : (
+                            <UserCircle className="h-5 w-5 text-primary" />
+                          )}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">

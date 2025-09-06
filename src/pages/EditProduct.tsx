@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import PageHeader from '@/components/PageHeader';
-import { ArrowLeft, Upload, Save, X } from 'lucide-react';
+import { ArrowLeft, Upload, Save, X, Image as ImageIcon } from 'lucide-react';
 
 const EditProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -308,7 +308,7 @@ const EditProduct: React.FC = () => {
 
               {/* Price */}
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($) *</Label>
+                <Label htmlFor="price">Price (₹) *</Label>
                 <Input
                   id="price"
                   name="price"
@@ -324,10 +324,13 @@ const EditProduct: React.FC = () => {
 
               {/* Image Upload */}
               <div className="space-y-2">
-                <Label>Product Image</Label>
+                <Label>Product Image *</Label>
+                <p className="text-sm text-muted-foreground">
+                  Upload a clear photo of your product. This is required to list your item.
+                </p>
                 
                 {/* Image Preview */}
-                {(uploadedImage || formData.imageUrl) && (
+                {(uploadedImage || formData.imageUrl) ? (
                   <div className="relative w-full max-w-xs">
                     <img
                       src={uploadedImage || formData.imageUrl}
@@ -343,6 +346,16 @@ const EditProduct: React.FC = () => {
                     >
                       <X className="w-4 h-4" />
                     </Button>
+                  </div>
+                ) : (
+                  <div className="w-full max-w-xs h-48 border-2 border-dashed border-muted-foreground/25 rounded-lg flex flex-col items-center justify-center bg-muted/20">
+                    <ImageIcon className="w-12 h-12 text-muted-foreground/50 mb-2" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      No image uploaded
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 text-center">
+                      Upload an image to continue
+                    </p>
                   </div>
                 )}
 
@@ -369,7 +382,7 @@ const EditProduct: React.FC = () => {
                   {!(uploadedImage || formData.imageUrl) && (
                     <div className="flex-1">
                       <Input
-                        placeholder="Or enter image URL"
+                        placeholder="Or enter image URL (required)"
                         value={formData.imageUrl}
                         onChange={handleInputChange}
                         name="imageUrl"

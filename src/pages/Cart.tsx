@@ -149,24 +149,24 @@ const Cart: React.FC = () => {
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
-    const shipping = subtotal > 50 ? 0 : 5.99; // Free shipping over $50
+    const shipping = subtotal > 4150 ? 0 : 500; // Free shipping over ₹4150 (50 USD)
     const tax = subtotal * 0.08; // 8% tax
     return subtotal + shipping + tax;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your cart...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your cart...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
       <PageHeader title="Shopping Cart" />
 
@@ -178,16 +178,23 @@ const Cart: React.FC = () => {
         )}
 
         {cartItems.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShoppingCart className="w-12 h-12 text-gray-400" />
+          <div className="text-center py-16">
+            <div className="relative">
+              <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                <ShoppingCart className="w-16 h-16 text-primary animate-bounce" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-primary to-emerald-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">0</span>
+              </div>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
-            <p className="text-gray-600 mb-4">
-              Start adding some eco-friendly products to your cart
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent mb-3">
+              Your cart is empty
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Start adding some eco-friendly products to your cart and make a positive impact on the environment
             </p>
             <Link to="/products">
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button className="bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <Package className="w-4 h-4 mr-2" />
                 Browse Products
               </Button>
@@ -196,63 +203,74 @@ const Cart: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
                   Cart Items ({cartItems.length})
                 </h2>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={clearCart}
-                  className="text-red-600 hover:text-red-700"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20 hover:border-destructive/30 transition-all duration-300"
                 >
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Clear Cart
                 </Button>
               </div>
 
-              {cartItems.map((item) => (
-                <Card key={item.id}>
-                  <CardContent className="p-4">
-                    <div className="flex space-x-4">
+              {cartItems.map((item, index) => (
+                <Card key={item.id} className="group hover:shadow-xl transition-all duration-500 hover:scale-[1.02] bg-card/80 backdrop-blur-sm border-border/50">
+                  <CardContent className="p-6">
+                    <div className="flex space-x-6">
                       {/* Product Image */}
-                      <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="relative w-24 h-24 bg-gradient-to-br from-primary/10 to-emerald-500/10 rounded-xl overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                         <img
                           src={item.product.imageUrl || '/placeholder.svg'}
                           alt={item.product.title}
                           className="w-full h-full object-cover"
                         />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
 
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 mb-1">
+                        <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
                           {item.product.title}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {item.product.category}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Sold by {item.product.seller.username}
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                            {item.product.category}
+                          </span>
+                          <span className="px-2 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-600 rounded-full">
+                            {item.product.condition || 'Good'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Sold by <span className="font-medium text-foreground">{item.product.seller.username}</span>
                         </p>
                       </div>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-3">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="h-8 w-8 p-0 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="w-8 text-center font-medium">
-                          {item.quantity}
-                        </span>
+                        <div className="w-12 h-8 bg-gradient-to-r from-primary/10 to-emerald-500/10 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-bold text-foreground">
+                            {item.quantity}
+                          </span>
+                        </div>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="h-8 w-8 p-0 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
                         >
                           <Plus className="w-3 h-3" />
                         </Button>
@@ -260,11 +278,11 @@ const Cart: React.FC = () => {
 
                       {/* Price */}
                       <div className="text-right">
-                        <p className="font-medium text-gray-900">
-                          ${((parseFloat(item.product.price) || 0) * item.quantity).toFixed(2)}
+                        <p className="text-lg font-bold bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
+                          ₹{((parseFloat(item.product.price) || 0) * item.quantity).toFixed(0)}
                         </p>
-                        <p className="text-sm text-gray-500">
-                          ${(parseFloat(item.product.price) || 0).toFixed(2)} each
+                        <p className="text-sm text-muted-foreground">
+                          ₹{(parseFloat(item.product.price) || 0).toFixed(0)} each
                         </p>
                       </div>
 
@@ -273,7 +291,7 @@ const Cart: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeItem(item.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-300 hover:scale-110"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -285,44 +303,49 @@ const Cart: React.FC = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-4">
-                <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+              <Card className="sticky top-4 bg-card/80 backdrop-blur-sm border-border/50 shadow-2xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl font-bold bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
+                    Order Summary
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
                     <div className="flex justify-between text-sm">
-                      <span>Subtotal</span>
-                      <span>${calculateSubtotal().toFixed(2)}</span>
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="font-medium text-foreground">₹{calculateSubtotal().toFixed(0)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>Shipping</span>
-                      <span>
-                        {calculateSubtotal() > 50 ? 'Free' : '$5.99'}
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="font-medium text-foreground">
+                        {calculateSubtotal() > 4150 ? 'Free' : '₹500'} {/* 50 USD = ~4150 INR */}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>Tax</span>
-                      <span>${(calculateSubtotal() * 0.08).toFixed(2)}</span>
+                      <span className="text-muted-foreground">Tax (8%)</span>
+                      <span className="font-medium text-foreground">₹{(calculateSubtotal() * 0.08).toFixed(0)}</span>
                     </div>
-                    <Separator />
-                    <div className="flex justify-between font-medium">
-                      <span>Total</span>
-                      <span>${calculateTotal().toFixed(2)}</span>
+                    <Separator className="bg-border/50" />
+                    <div className="flex justify-between text-lg font-bold">
+                      <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">Total</span>
+                      <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">₹{calculateTotal().toFixed(0)}</span>
                     </div>
                   </div>
 
-                  {calculateSubtotal() < 50 && (
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <p className="text-sm text-green-800">
-                        Add ${(50 - calculateSubtotal()).toFixed(2)} more for free shipping!
-                      </p>
+                  {calculateSubtotal() < 4150 && (
+                    <div className="p-4 bg-gradient-to-r from-primary/10 to-emerald-500/10 rounded-xl border border-primary/20">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                        <p className="text-sm font-medium text-primary">
+                          Add ₹{(4150 - calculateSubtotal()).toFixed(0)} more for free shipping!
+                        </p>
+                      </div>
                     </div>
                   )}
 
                   <Button
                     onClick={handleCheckout}
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    className="w-full bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                     size="lg"
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
@@ -330,7 +353,7 @@ const Cart: React.FC = () => {
                   </Button>
 
                   <Link to="/products" className="block">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full hover:bg-primary/10 hover:border-primary/50 transition-all duration-300">
                       Continue Shopping
                     </Button>
                   </Link>

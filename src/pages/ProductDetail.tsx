@@ -260,7 +260,7 @@ const ProductDetail: React.FC = () => {
                   )}
                 </div>
                 <div className="text-3xl font-bold text-green-600">
-                  ${(parseFloat(product.price) || 0).toFixed(2)}
+                  ₹{(parseFloat(product.price) || 0).toFixed(0)}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">

@@ -10,12 +10,14 @@ const ProductGrid = () => {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [cartItems, setCartItems] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadProducts();
     if (user) {
       loadFavorites();
+      loadCartItems();
     }
   }, [user]);
 
@@ -53,6 +55,23 @@ const ProductGrid = () => {
     }
   };
 
+  const loadCartItems = async () => {
+    if (!user) {
+      setCartItems([]);
+      return;
+    }
+
+    try {
+      const response = await cartAPI.get();
+      if (response.success && response.data?.cartItems) {
+        const cartItemIds = response.data.cartItems.map((item: any) => item.productId);
+        setCartItems(cartItemIds);
+      }
+    } catch (error: any) {
+      console.error('Error loading cart items:', error);
+    }
+  };
+
   const handleAddToCart = async (productId: string) => {
     if (!user) {
       toast.error('Please login to add items to cart');
@@ -66,9 +85,16 @@ const ProductGrid = () => {
       return;
     }
 
+    // Check if item is already in cart
+    if (cartItems.includes(productId)) {
+      toast.info('Item is already in your cart!');
+      return;
+    }
+
     try {
       const response = await cartAPI.add(productId, 1);
       if (response.success) {
+        setCartItems(prev => [...prev, productId]);
         toast.success('Item added to cart!');
       } else {
         toast.error('Failed to add item to cart');
@@ -141,6 +167,7 @@ const ProductGrid = () => {
             onAddToCart={handleAddToCart}
             onToggleFavorite={handleToggleFavorite}
             favorites={favorites}
+            cartItems={cartItems}
           />
         )}
         

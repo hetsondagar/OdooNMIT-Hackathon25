@@ -116,7 +116,7 @@ const Purchases: React.FC = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Spent</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${calculateTotalSpent().toFixed(2)}
+                    ₹{calculateTotalSpent().toFixed(0)}
                   </p>
                 </div>
               </div>
@@ -196,7 +196,7 @@ const Purchases: React.FC = () => {
                         </div>
                         <div className="text-right mt-4 lg:mt-0">
                           <p className="text-xl font-bold text-green-600">
-                            ${purchase.totalAmount.toFixed(2)}
+                            ₹{purchase.totalAmount.toFixed(0)}
                           </p>
                           <p className="text-sm text-gray-500">
                             Purchased on {formatDate(purchase.purchaseDate)}

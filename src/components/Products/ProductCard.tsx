@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart, Leaf, Zap, Sparkles, Eye } from "lucide-react";
+import { Heart, ShoppingCart, Leaf, Zap, Sparkles, Eye, Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -13,6 +13,9 @@ interface ProductCardProps {
   isLiked?: boolean;
   carbonSaved?: number;
   condition?: string;
+  isInCart?: boolean;
+  onAddToCart?: (productId: string) => void;
+  onRemoveFromCart?: (productId: string) => void;
 }
 
 const ProductCard = ({ 
@@ -24,14 +27,32 @@ const ProductCard = ({
   seller, 
   isLiked = false,
   carbonSaved,
-  condition = "Good"
+  condition = "Good",
+  isInCart = false,
+  onAddToCart,
+  onRemoveFromCart
 }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isLikedState, setIsLikedState] = useState(isLiked);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsLikedState(!isLikedState);
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isInCart) {
+      onRemoveFromCart?.(id);
+    } else {
+      setIsAddingToCart(true);
+      try {
+        await onAddToCart?.(id);
+      } finally {
+        setIsAddingToCart(false);
+      }
+    }
   };
 
   return (
@@ -98,11 +119,26 @@ const ProductCard = ({
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
           <Button 
             size="sm" 
-            className="rounded-full bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700 text-white font-semibold px-6 py-2 shadow-2xl hover:shadow-primary/25 transition-all duration-300 hover:scale-105"
+            onClick={handleAddToCart}
+            disabled={isAddingToCart}
+            className={`rounded-full font-semibold px-6 py-2 shadow-2xl transition-all duration-300 hover:scale-105 ${
+              isInCart 
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white' 
+                : 'bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700 text-white'
+            }`}
           >
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Quick Add
-            <Zap className="h-3 w-3 ml-2 animate-pulse" />
+            {isInCart ? (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Added to Cart
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                {isAddingToCart ? 'Adding...' : 'Quick Add'}
+                {!isAddingToCart && <Zap className="h-3 w-3 ml-2 animate-pulse" />}
+              </>
+            )}
           </Button>
         </div>
 
@@ -149,10 +185,10 @@ const ProductCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
-              €{price}
+              ₹{price}
             </span>
             <span className="text-sm text-muted-foreground line-through font-medium">
-              €{Math.round(price * 1.8)}
+              ₹{Math.round(price * 1.8)}
             </span>
           </div>
           
@@ -179,6 +215,42 @@ const ProductCard = ({
               ))}
               <span className="text-xs font-bold text-green-600 ml-1">4.8</span>
             </div>
+          </div>
+        </div>
+
+        {/* Main Action Buttons */}
+        <div className="mt-4 pt-4 border-t border-border/50">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 rounded-full border-2 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View Details
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+              className={`flex-1 rounded-full font-semibold transition-all duration-300 ${
+                isInCart 
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white' 
+                  : 'bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700 text-white'
+              }`}
+            >
+              {isInCart ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  In Cart
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>

@@ -17,7 +17,8 @@ import {
   Package,
   Calendar,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 
 const MyListings: React.FC = () => {
@@ -35,15 +36,34 @@ const MyListings: React.FC = () => {
     }
   }, [user, navigate]);
 
+  // Refresh products when page becomes visible (e.g., when returning from AddProduct)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        loadProducts();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user]);
+
   const loadProducts = async () => {
     if (!user) return;
 
     try {
       setIsLoading(true);
       const response = await productsAPI.getAll();
+      console.log('MyListings - API response:', response);
+      console.log('MyListings - Current user ID:', user.id);
+      
       if (response.success && response.data?.products) {
         // Filter products by current user
-        const userProducts = response.data.products.filter((product: Product) => product.sellerId === user.id);
+        const userProducts = response.data.products.filter((product: Product) => {
+          console.log('Product sellerId:', product.sellerId, 'User ID:', user.id, 'Match:', product.sellerId === user.id);
+          return product.sellerId === user.id;
+        });
+        console.log('MyListings - User products:', userProducts);
         setProducts(userProducts);
       } else {
         toast.error('Failed to load your listings');
@@ -128,12 +148,24 @@ const MyListings: React.FC = () => {
                 Manage your product listings and track their performance
               </p>
             </div>
-            <Link to="/products/new">
-              <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Product
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={loadProducts}
+                disabled={isLoading}
+                className="hover:bg-primary/10 hover:border-primary/50"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
               </Button>
-            </Link>
+              <Link to="/products/new">
+                <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Product
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -178,7 +210,7 @@ const MyListings: React.FC = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Value</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${products.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0).toFixed(2)}
+                    ₹{products.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0).toFixed(0)}
                   </p>
                 </div>
               </div>
@@ -251,7 +283,7 @@ const MyListings: React.FC = () => {
 
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-lg font-bold text-green-600">
-                        ${(parseFloat(product.price) || 0).toFixed(2)}
+                        ₹{(parseFloat(product.price) || 0).toFixed(0)}
                       </span>
                     </div>
 

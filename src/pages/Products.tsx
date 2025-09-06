@@ -31,12 +31,14 @@ const Products: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('newest');
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [cartItems, setCartItems] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadProducts();
     loadFavorites();
+    loadCartItems();
   }, [user]);
 
   useEffect(() => {
@@ -75,6 +77,23 @@ const Products: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Error loading favorites:', error);
+    }
+  };
+
+  const loadCartItems = async () => {
+    if (!user) {
+      setCartItems([]);
+      return;
+    }
+
+    try {
+      const response = await cartAPI.get();
+      if (response.success && response.data?.cartItems) {
+        const cartItemIds = response.data.cartItems.map((item: any) => item.productId);
+        setCartItems(cartItemIds);
+      }
+    } catch (error: any) {
+      console.error('Error loading cart items:', error);
     }
   };
 
@@ -128,10 +147,17 @@ const Products: React.FC = () => {
       toast.error('You cannot add your own product to cart!');
       return;
     }
+
+    // Check if item is already in cart
+    if (cartItems.includes(productId)) {
+      toast.info('Item is already in your cart!');
+      return;
+    }
     
     try {
       const response = await cartAPI.add(productId, 1);
       if (response.success) {
+        setCartItems(prev => [...prev, productId]);
         toast.success('Item added to cart!');
       } else {
         toast.error('Failed to add item to cart');
@@ -304,6 +330,7 @@ const Products: React.FC = () => {
             onAddToCart={handleAddToCart}
             onToggleFavorite={handleToggleFavorite}
             favorites={favorites}
+            cartItems={cartItems}
           />
         )}
       </div>

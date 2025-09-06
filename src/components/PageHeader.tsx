@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuGroup } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import HomeButton from '@/components/HomeButton';
-import { User, Settings, LogOut, LayoutDashboard } from 'lucide-react';
+import { User, Settings, LogOut, LayoutDashboard, UserCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface PageHeaderProps {
@@ -36,18 +36,36 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, className = '' }) => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-primary/10 transition-colors duration-200">
+                    <Avatar className="h-10 w-10 border-2 border-primary/20">
                       <AvatarImage src={user.avatar} alt={user.username} />
-                      <AvatarFallback>
-                        {user.firstName?.[0]}{user.lastName?.[0]}
+                      <AvatarFallback className="bg-gradient-to-br from-primary/10 to-emerald-500/10 text-primary">
+                        {user.avatar && user.avatar !== '/placeholder.svg' ? (
+                          <span className="text-sm font-semibold">
+                            {user.firstName?.[0]}{user.lastName?.[0]}
+                          </span>
+                        ) : (
+                          <UserCircle className="h-6 w-6 text-primary" />
+                        )}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel>
-                    <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex items-center justify-start gap-3 p-2">
+                      <Avatar className="h-12 w-12 border-2 border-primary/20">
+                        <AvatarImage src={user.avatar} alt={user.username} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary/10 to-emerald-500/10 text-primary">
+                          {user.avatar && user.avatar !== '/placeholder.svg' ? (
+                            <span className="text-lg font-semibold">
+                              {user.firstName?.[0]}{user.lastName?.[0]}
+                            </span>
+                          ) : (
+                            <UserCircle className="h-8 w-8 text-primary" />
+                          )}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex flex-col space-y-1 leading-none">
                         <p className="font-medium">{user.firstName} {user.lastName}</p>
                         <p className="w-[200px] truncate text-sm text-muted-foreground">
