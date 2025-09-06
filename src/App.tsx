@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
-import EcoFindsPlatform from "./pages/EcoFindsPlatform";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -19,6 +18,12 @@ import EditProduct from "./pages/EditProduct";
 import MyListings from "./pages/MyListings";
 import Cart from "./pages/Cart";
 import Purchases from "./pages/Purchases";
+import CarbonTracker from "./pages/CarbonTracker";
+import EcoBadges from "./pages/EcoBadges";
+import Community from "./pages/Community";
+import SocialShare from "./pages/SocialShare";
+import TrendingListings from "./pages/TrendingListings";
+import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,7 +38,6 @@ const App = () => (
           <AuthProvider>
             <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/platform" element={<EcoFindsPlatform />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -46,6 +50,13 @@ const App = () => (
             <Route path="/my-listings" element={<MyListings />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/purchases" element={<Purchases />} />
+            {/* Feature Routes */}
+            <Route path="/carbon-tracker" element={<CarbonTracker />} />
+            <Route path="/eco-badges" element={<EcoBadges />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/social-share" element={<SocialShare />} />
+            <Route path="/trending" element={<TrendingListings />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

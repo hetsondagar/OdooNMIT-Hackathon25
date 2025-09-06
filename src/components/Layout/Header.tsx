@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, Leaf, LogOut } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, Leaf, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { dataStore } from "@/lib/data";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PremiumButton } from "@/components/ui/premium-button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,12 +43,12 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-            Browse All
+            Browse
           </Link>
-          <Link to="/categories" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+          <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
             Categories
           </Link>
-          <Link to="/community" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+          <Link to="/platform" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
             Community
           </Link>
           <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
@@ -68,24 +75,24 @@ const Header = () => {
             <>
               <Link to="/cart">
                 <Button variant="ghost" size="icon" className="relative hover-lift">
-                  <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="h-5 w-5" />
                   {cartItemCount > 0 && (
                     <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-xs font-bold text-white flex items-center justify-center shadow-lg animate-pulse">
                       {cartItemCount}
-                    </span>
+            </span>
                   )}
-                </Button>
+          </Button>
               </Link>
-              
+          
               <Link to="/dashboard">
                 <Button variant="ghost" size="icon" className="hover-lift">
-                  <User className="h-5 w-5" />
-                </Button>
+            <User className="h-5 w-5" />
+          </Button>
               </Link>
 
               <Link to="/products/new">
                 <PremiumButton variant="eco" size="sm" className="hidden sm:inline-flex">
-                  Sell Item
+            Sell Item
                 </PremiumButton>
               </Link>
 
@@ -99,7 +106,7 @@ const Header = () => {
               <Link to="/login">
                 <Button variant="ghost" size="sm" className="hover-lift">
                   Sign In
-                </Button>
+          </Button>
               </Link>
               <Link to="/register">
                 <PremiumButton variant="eco" size="sm">
@@ -139,13 +146,13 @@ const Header = () => {
             <Link to="/products" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               Browse All
             </Link>
-            <Link to="/categories" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+            <Link to="/products" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               Categories
             </Link>
-            <Link to="/community" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+            <Link to="/platform" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               Community
             </Link>
-            <Link to="/" onClick={() => setIsMenuOpen(false)} className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+            <Link to="/" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               About
             </Link>
             
@@ -153,7 +160,7 @@ const Header = () => {
               <>
                 <Link to="/products/new" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <PremiumButton variant="eco" className="w-full">
-                    Sell Item
+              Sell Item
                   </PremiumButton>
                 </Link>
                 <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="mt-2">
@@ -175,7 +182,7 @@ const Header = () => {
                 <Link to="/login" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <Button variant="outline" className="w-full hover-lift">
                     Sign In
-                  </Button>
+            </Button>
                 </Link>
                 <Link to="/register" onClick={() => setIsMenuOpen(false)} className="mt-2">
                   <PremiumButton variant="eco" className="w-full">
