@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -35,25 +36,94 @@ const App = () => (
         <ThemeProvider>
           <AuthProvider>
             <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/new" element={<AddProduct />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/products/:id/edit" element={<EditProduct />} />
-            <Route path="/my-listings" element={<MyListings />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/purchases" element={<Purchases />} />
-            {/* Feature Routes */}
-            <Route path="/carbon-tracker" element={<CarbonTracker />} />
-            <Route path="/eco-badges" element={<EcoBadges />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/social-share" element={<SocialShare />} />
-            <Route path="/trending" element={<TrendingListings />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/login" element={
+              <ProtectedRoute requireAuth={false}>
+                <Login />
+              </ProtectedRoute>
+            } />
+            <Route path="/register" element={
+              <ProtectedRoute requireAuth={false}>
+                <Register />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected Routes - Require Authentication */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/products" element={
+              <ProtectedRoute>
+                <Products />
+              </ProtectedRoute>
+            } />
+            <Route path="/products/new" element={
+              <ProtectedRoute>
+                <AddProduct />
+              </ProtectedRoute>
+            } />
+            <Route path="/products/:id" element={
+              <ProtectedRoute>
+                <ProductDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/products/:id/edit" element={
+              <ProtectedRoute>
+                <EditProduct />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-listings" element={
+              <ProtectedRoute>
+                <MyListings />
+              </ProtectedRoute>
+            } />
+            <Route path="/cart" element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            } />
+            <Route path="/purchases" element={
+              <ProtectedRoute>
+                <Purchases />
+              </ProtectedRoute>
+            } />
+            
+            {/* Feature Routes - Protected */}
+            <Route path="/carbon-tracker" element={
+              <ProtectedRoute>
+                <CarbonTracker />
+              </ProtectedRoute>
+            } />
+            <Route path="/eco-badges" element={
+              <ProtectedRoute>
+                <EcoBadges />
+              </ProtectedRoute>
+            } />
+            <Route path="/community" element={
+              <ProtectedRoute>
+                <Community />
+              </ProtectedRoute>
+            } />
+            <Route path="/social-share" element={
+              <ProtectedRoute>
+                <SocialShare />
+              </ProtectedRoute>
+            } />
+            <Route path="/trending" element={
+              <ProtectedRoute>
+                <TrendingListings />
+              </ProtectedRoute>
+            } />
+            <Route path="/wishlist" element={
+              <ProtectedRoute>
+                <Wishlist />
+              </ProtectedRoute>
+            } />
+            
+            {/* 404 Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           </AuthProvider>

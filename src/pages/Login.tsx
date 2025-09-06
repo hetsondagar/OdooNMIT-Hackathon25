@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,10 @@ const Login: React.FC = () => {
   
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get the page the user was trying to access before being redirected to login
+  const from = (location.state as any)?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +31,8 @@ const Login: React.FC = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate('/');
+        // Redirect to the page the user was trying to access, or dashboard by default
+        navigate(from, { replace: true });
       } else {
         setError('Invalid email or password');
       }

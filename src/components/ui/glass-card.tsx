@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  variant?: 'default' | 'elevated' | 'subtle';
+  variant?: 'default' | 'elevated' | 'subtle' | 'premium' | 'tech';
   hover?: boolean;
+  glow?: boolean;
+  animated?: boolean;
 }
 
 export function GlassCard({ 
@@ -12,25 +14,48 @@ export function GlassCard({
   className, 
   variant = 'default',
   hover = true,
+  glow = false,
+  animated = false,
   ...props 
 }: GlassCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   const variants = {
     default: 'bg-background/80 backdrop-blur-xl border border-border/50 shadow-lg',
     elevated: 'bg-background/90 backdrop-blur-2xl border border-border/60 shadow-2xl',
-    subtle: 'bg-background/60 backdrop-blur-lg border border-border/30 shadow-md'
+    subtle: 'bg-background/60 backdrop-blur-lg border border-border/30 shadow-md',
+    premium: 'bg-gradient-to-br from-background/90 via-background/80 to-background/90 backdrop-blur-2xl border border-border/60 shadow-2xl',
+    tech: 'bg-gradient-to-br from-primary/5 via-background/80 to-emerald-500/5 backdrop-blur-2xl border border-primary/20 shadow-2xl'
   };
 
   return (
     <div
       className={cn(
-        'rounded-2xl transition-all duration-300',
+        'relative rounded-3xl transition-all duration-500 overflow-hidden',
         variants[variant],
-        hover && 'hover:shadow-xl hover:scale-[1.02] hover:bg-background/90',
+        hover && 'hover:shadow-2xl hover:scale-[1.02] hover:bg-background/95',
+        glow && 'shadow-primary/20 shadow-2xl',
+        animated && 'animate-tech-pulse',
         className
       )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       {...props}
     >
-      {children}
+      {/* Animated Background Gradient */}
+      {animated && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent -translate-x-full animate-shimmer" />
+      )}
+      
+      {/* Hover Glow Effect */}
+      {isHovered && glow && (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-emerald-500/10 animate-pulse" />
+      )}
+      
+      {/* Content */}
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import PageHeader from '@/components/PageHeader';
 import { 
   Plus, 
   Edit, 
@@ -87,32 +88,9 @@ const MyListings: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link to="/" className="text-2xl font-bold text-green-600">
-                EcoFinds
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/dashboard">
-                <Button variant="outline" size="sm">
-                  Dashboard
-                </Button>
-              </Link>
-              <Link to="/products/new">
-                <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Product
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="My Listings" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {message && (
@@ -121,19 +99,18 @@ const MyListings: React.FC = () => {
           </Alert>
         )}
 
-        {/* Page Header */}
+        {/* Page Actions */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Listings</h1>
               <p className="text-gray-600 mt-2">
                 Manage your product listings and track their performance
               </p>
             </div>
             <Link to="/products/new">
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button size="sm" className="bg-green-600 hover:bg-green-700">
                 <Plus className="w-4 h-4 mr-2" />
-                Add New Product
+                Add Product
               </Button>
             </Link>
           </div>

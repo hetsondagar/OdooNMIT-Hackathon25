@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,10 @@ const Register: React.FC = () => {
   
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get the page the user was trying to access before being redirected to register
+  const from = (location.state as any)?.from?.pathname || '/dashboard';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,7 +69,8 @@ const Register: React.FC = () => {
       });
 
       if (success) {
-        navigate('/');
+        // Redirect to the page the user was trying to access, or dashboard by default
+        navigate(from, { replace: true });
       } else {
         setError('An account with this email already exists');
       }

@@ -10,6 +10,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumProductGrid } from '@/components/ui/premium-product-card';
 import { FloatingActions, ScrollToTop } from '@/components/ui/floating-actions';
+import PageHeader from '@/components/PageHeader';
 import { 
   Search, 
   Filter, 
@@ -106,9 +107,9 @@ const Products: React.FC = () => {
   const categories = Object.values(ProductCategory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
+      <div className="relative overflow-hidden bg-gradient-to-r from-primary via-primary/90 to-primary/80">
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center text-white">
