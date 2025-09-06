@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { wishlistAPI, cartAPI } from '@/services/api';
+import { toast } from 'sonner';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { Badge } from '@/components/ui/badge';
+<<<<<<< HEAD
 import PageHeader from '@/components/PageHeader';
+=======
+import Header from '@/components/Layout/Header';
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
 import { 
   Heart, 
   ShoppingCart, 
@@ -33,6 +38,7 @@ interface WishlistItem {
   image: string;
   category: string;
   seller: string;
+  sellerId: string;
   condition: string;
   location: string;
   carbonSaved: number;
@@ -65,86 +71,47 @@ const Wishlist: React.FC = () => {
     filterAndSortItems();
   }, [wishlistItems, sortBy, sortOrder, categoryFilter, searchQuery]);
 
-  const loadWishlistItems = () => {
+  const loadWishlistItems = async () => {
     if (!user) return;
 
-    // Mock wishlist data - in a real app, this would come from the data store
-    const mockWishlistItems: WishlistItem[] = [
-      {
-        id: '1',
-        productId: 'prod-1',
-        title: 'Vintage Denim Jacket',
-        price: 45,
-        image: '/placeholder.svg',
-        category: 'Fashion',
-        seller: 'EcoStyler',
-        condition: 'Excellent',
-        location: 'New York, NY',
-        carbonSaved: 8.5,
-        addedAt: new Date('2024-01-10'),
-        isAvailable: true,
-        priceChanged: false,
-        rating: 4.8,
-        reviews: 24,
-        timeLeft: '2 days left'
-      },
-      {
-        id: '2',
-        productId: 'prod-2',
-        title: 'Handmade Pottery Set',
-        price: 28,
-        image: '/placeholder.svg',
-        category: 'Home & Garden',
-        seller: 'CraftedGreen',
-        condition: 'Like New',
-        location: 'San Francisco, CA',
-        carbonSaved: 4.2,
-        addedAt: new Date('2024-01-08'),
-        isAvailable: true,
-        priceChanged: true,
-        originalPrice: 32,
-        rating: 4.9,
-        reviews: 18,
-        timeLeft: '5 days left'
-      },
-      {
-        id: '3',
-        productId: 'prod-3',
-        title: 'Eco-Friendly Sneakers',
-        price: 68,
-        image: '/placeholder.svg',
-        category: 'Fashion',
-        seller: 'SustainableSteps',
-        condition: 'Good',
-        location: 'Los Angeles, CA',
-        carbonSaved: 12.3,
-        addedAt: new Date('2024-01-05'),
-        isAvailable: false,
-        priceChanged: false,
-        rating: 4.7,
-        reviews: 42
-      },
-      {
-        id: '4',
-        productId: 'prod-4',
-        title: 'Bamboo Picture Frames',
-        price: 24,
-        image: '/placeholder.svg',
-        category: 'Home & Garden',
-        seller: 'NaturalFrames',
-        condition: 'Excellent',
-        location: 'Seattle, WA',
-        carbonSaved: 3.1,
-        addedAt: new Date('2024-01-03'),
-        isAvailable: true,
-        priceChanged: false,
-        rating: 4.6,
-        reviews: 12,
-        timeLeft: '3 days left'
+    try {
+      const response = await wishlistAPI.get();
+      console.log('Wishlist API response:', response); // Debug log
+      
+      if (response.success && response.data?.wishlistItems) {
+        // Transform backend data to match frontend interface
+        const transformedItems: WishlistItem[] = response.data.wishlistItems.map((item: any) => ({
+          id: item.id,
+          productId: item.productId,
+          title: item.product?.title || 'Unknown Product',
+          price: parseFloat(item.product?.price) || 0,
+          image: item.product?.imageUrl || '/placeholder.svg',
+          category: item.product?.category || 'Unknown',
+          seller: item.product?.seller?.username || 'Unknown Seller',
+          sellerId: item.product?.sellerId || item.product?.seller?.id || '',
+          condition: item.product?.condition || 'Good',
+          location: item.product?.location || 'Unknown',
+          carbonSaved: parseFloat(item.product?.carbonFootprint) || 5.0,
+          addedAt: new Date(item.createdAt),
+          isAvailable: item.product?.isAvailable !== false, // Default to true if not specified
+          priceChanged: false, // Default to no price change
+          rating: 4.5, // Default rating
+          reviews: 0 // Default reviews
+        }));
+        console.log('Transformed wishlist items:', transformedItems); // Debug log
+        setWishlistItems(transformedItems);
+      } else {
+        console.log('No wishlist data found or API failed:', response);
+        setWishlistItems([]);
+        if (response.message) {
+          toast.error(response.message);
+        }
       }
-    ];
-
-    setWishlistItems(mockWishlistItems);
+    } catch (error: any) {
+      console.error('Error loading wishlist:', error);
+      toast.error('Failed to load wishlist. Please try again.');
+      setWishlistItems([]);
+    }
   };
 
   const filterAndSortItems = () => {
@@ -185,14 +152,47 @@ const Wishlist: React.FC = () => {
     setFilteredItems(filtered);
   };
 
-  const removeFromWishlist = (itemId: string) => {
-    setWishlistItems(prev => prev.filter(item => item.id !== itemId));
+  const removeFromWishlist = async (itemId: string) => {
+    try {
+      const response = await wishlistAPI.remove(itemId);
+      if (response.success) {
+        setWishlistItems(prev => prev.filter(item => item.id !== itemId));
+        toast.success('Item removed from wishlist');
+      } else {
+        toast.error('Failed to remove item from wishlist');
+      }
+    } catch (error: any) {
+      console.error('Error removing from wishlist:', error);
+      toast.error('Failed to remove item from wishlist. Please try again.');
+    }
   };
 
-  const addToCart = (itemId: string) => {
-    // In a real app, this would add the item to the cart
-    console.log(`Adding item ${itemId} to cart`);
-    alert('Item added to cart!');
+  const addToCart = async (itemId: string) => {
+    if (!user) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    try {
+      const item = wishlistItems.find(i => i.id === itemId);
+      if (item) {
+        // Check if the product belongs to the current user
+        if (item.sellerId === user.id) {
+          toast.error('You cannot add your own product to cart!');
+          return;
+        }
+
+        const response = await cartAPI.add(item.productId, 1);
+        if (response.success) {
+          toast.success('Item added to cart!');
+        } else {
+          toast.error('Failed to add item to cart');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.');
+    }
   };
 
   const toggleSelection = (itemId: string) => {
@@ -211,9 +211,19 @@ const Wishlist: React.FC = () => {
     setSelectedItems([]);
   };
 
-  const removeSelected = () => {
-    setWishlistItems(prev => prev.filter(item => !selectedItems.includes(item.id)));
-    setSelectedItems([]);
+  const removeSelected = async () => {
+    try {
+      // Remove all selected items from wishlist
+      const removePromises = selectedItems.map(itemId => wishlistAPI.remove(itemId));
+      await Promise.all(removePromises);
+      
+      setWishlistItems(prev => prev.filter(item => !selectedItems.includes(item.id)));
+      setSelectedItems([]);
+      toast.success('Selected items removed from wishlist');
+    } catch (error: any) {
+      console.error('Error removing selected items:', error);
+      toast.error('Failed to remove selected items. Please try again.');
+    }
   };
 
   const categories = ['all', 'Fashion', 'Home & Garden', 'Electronics', 'Books', 'Sports & Outdoors', 'Accessories'];
@@ -230,6 +240,7 @@ const Wishlist: React.FC = () => {
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
       <PageHeader title="My Wishlist" />
@@ -241,6 +252,20 @@ const Wishlist: React.FC = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent mb-4">
               My Wishlist
             </h1>
+=======
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30">
+      {/* Header Navigation */}
+      <Header />
+      
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+            
+            {/* Page Header */}
+            <div className="text-center">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
+                My Wishlist
+              </h1>
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Keep track of your favorite sustainable finds and never miss a great deal
               </p>
@@ -341,7 +366,7 @@ const Wishlist: React.FC = () => {
                     <span className="text-sm text-muted-foreground">
                       {selectedItems.length} selected
                     </span>
-                    <PremiumButton variant="destructive" size="sm" onClick={removeSelected}>
+                    <PremiumButton variant="secondary" size="sm" onClick={removeSelected} className="bg-red-500 hover:bg-red-600 text-white">
                       <Trash2 className="w-4 h-4 mr-1" />
                       Remove
                     </PremiumButton>
@@ -353,10 +378,10 @@ const Wishlist: React.FC = () => {
             {/* Bulk Actions */}
             {filteredItems.length > 0 && (
               <div className="flex items-center gap-2">
-                <PremiumButton variant="outline" size="sm" onClick={selectAll}>
+                <PremiumButton variant="secondary" size="sm" onClick={selectAll}>
                   Select All
                 </PremiumButton>
-                <PremiumButton variant="outline" size="sm" onClick={clearSelection}>
+                <PremiumButton variant="secondary" size="sm" onClick={clearSelection}>
                   Clear Selection
                 </PremiumButton>
               </div>
@@ -468,7 +493,7 @@ const Wishlist: React.FC = () => {
                           </PremiumButton>
                         ) : (
                           <PremiumButton 
-                            variant="outline" 
+                            variant="secondary" 
                             size="sm" 
                             className="flex-1 gap-2"
                             disabled
@@ -479,7 +504,7 @@ const Wishlist: React.FC = () => {
                         )}
                         
                         <PremiumButton 
-                          variant="outline" 
+                          variant="secondary" 
                           size="sm"
                           onClick={() => removeFromWishlist(item.id)}
                         >
@@ -487,7 +512,7 @@ const Wishlist: React.FC = () => {
                         </PremiumButton>
                         
                         <PremiumButton 
-                          variant="outline" 
+                          variant="secondary" 
                           size="sm"
                         >
                           <Share2 className="w-4 h-4" />

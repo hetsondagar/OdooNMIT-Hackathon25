@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { productsAPI, purchasesAPI, wishlistAPI } from '@/services/api';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import Header from '@/components/Layout/Header';
 import { 
   User, 
   Mail, 
@@ -36,6 +39,56 @@ const Dashboard: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [userStats, setUserStats] = useState({
+    totalListings: 0,
+    totalPurchases: 0,
+    totalWishlistItems: 0,
+    totalSpent: 0
+  });
+
+  useEffect(() => {
+    if (user) {
+      loadUserStats();
+    }
+  }, [user]);
+
+  const loadUserStats = async () => {
+    if (!user) return;
+
+    try {
+      // Load user's listings
+      const productsResponse = await productsAPI.getAll();
+      if (productsResponse.success && productsResponse.data?.products) {
+        const userListings = productsResponse.data.products.filter((product: any) => product.sellerId === user.id);
+        
+        // Load user's purchases
+        const purchasesResponse = await purchasesAPI.getAll();
+        let userPurchases: any[] = [];
+        let totalSpent = 0;
+        if (purchasesResponse.success && purchasesResponse.data?.purchases) {
+          userPurchases = purchasesResponse.data.purchases.filter((purchase: any) => purchase.userId === user.id);
+          totalSpent = userPurchases.reduce((sum: number, purchase: any) => sum + (purchase.totalAmount || 0), 0);
+        }
+
+        // Load user's wishlist
+        const wishlistResponse = await wishlistAPI.get();
+        let wishlistItems: any[] = [];
+        if (wishlistResponse.success && wishlistResponse.data?.wishlist) {
+          wishlistItems = wishlistResponse.data.wishlist;
+        }
+
+        setUserStats({
+          totalListings: userListings.length,
+          totalPurchases: userPurchases.length,
+          totalWishlistItems: wishlistItems.length,
+          totalSpent
+        });
+      }
+    } catch (error: any) {
+      console.error('Error loading user stats:', error);
+      toast.error('Failed to load user statistics');
+    }
+  };
 
   if (!user) {
     navigate('/login');
@@ -87,6 +140,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
@@ -109,6 +163,17 @@ const Dashboard: React.FC = () => {
                 Logout
               </Button>
             </div>
+=======
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <Header />
+      
+      {/* Page Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
           </div>
         </div>
       </div>
@@ -346,6 +411,23 @@ const Dashboard: React.FC = () => {
                     <span className="text-sm font-medium">
                       {new Date(user.updatedAt).toLocaleDateString()}
                     </span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Total Listings</span>
+                    <span className="text-sm font-medium">{userStats.totalListings}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Total Purchases</span>
+                    <span className="text-sm font-medium">{userStats.totalPurchases}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Wishlist Items</span>
+                    <span className="text-sm font-medium">{userStats.totalWishlistItems}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Total Spent</span>
+                    <span className="text-sm font-medium">${userStats.totalSpent.toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>

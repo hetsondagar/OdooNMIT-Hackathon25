@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { productsAPI } from '@/services/api';
 import { ProductCategory } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,15 +11,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+<<<<<<< HEAD
 import PageHeader from '@/components/PageHeader';
 import { ArrowLeft, Upload, Save } from 'lucide-react';
+=======
+import { ArrowLeft, Upload, Save, X, Image as ImageIcon } from 'lucide-react';
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
 
 const AddProduct: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -39,6 +46,72 @@ const AddProduct: React.FC = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Image size should be less than 2MB');
+        return;
+      }
+
+      // Compress and create preview
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions (max 800px width/height)
+        const maxSize = 800;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+        
+        setUploadedImage(compressedDataUrl);
+        setFormData(prev => ({
+          ...prev,
+          imageUrl: compressedDataUrl
+        }));
+      };
+      
+      img.src = URL.createObjectURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setUploadedImage(null);
+    setFormData(prev => ({
+      ...prev,
+      imageUrl: ''
+    }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleCategoryChange = (value: string) => {
@@ -77,33 +150,40 @@ const AddProduct: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const newProduct = dataStore.createProduct({
+      const response = await productsAPI.create({
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: formData.category as ProductCategory,
         price: parseFloat(formData.price),
         imageUrl: formData.imageUrl || '/placeholder.svg',
-        sellerId: user.id,
         isAvailable: true
       });
 
-      setSuccess('Product created successfully!');
-      
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        category: '',
-        price: '',
-        imageUrl: ''
-      });
+      if (response.success) {
+        toast.success('Product created successfully!');
+        setSuccess('Product created successfully!');
+        
+        // Reset form
+        setFormData({
+          title: '',
+          description: '',
+          category: '',
+          price: '',
+          imageUrl: ''
+        });
 
-      // Redirect to product detail or my listings after a short delay
-      setTimeout(() => {
-        navigate('/my-listings');
-      }, 2000);
+        // Redirect to product detail or my listings after a short delay
+        setTimeout(() => {
+          navigate('/my-listings');
+        }, 2000);
+      } else {
+        toast.error('Failed to create product');
+        setError('Failed to create product. Please try again.');
+      }
 
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error creating product:', error);
+      toast.error('Failed to create product. Please try again.');
       setError('Failed to create product. Please try again.');
     } finally {
       setIsLoading(false);
@@ -200,29 +280,64 @@ const AddProduct: React.FC = () => {
                 />
               </div>
 
-              {/* Image URL */}
+              {/* Image Upload */}
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-                <div className="flex space-x-2">
-                  <Input
-                    id="imageUrl"
-                    name="imageUrl"
-                    type="url"
-                    placeholder="https://example.com/image.jpg"
-                    value={formData.imageUrl}
-                    onChange={handleInputChange}
+                <Label>Product Image</Label>
+                
+                {/* Image Preview */}
+                {uploadedImage && (
+                  <div className="relative w-full max-w-xs">
+                    <img
+                      src={uploadedImage}
+                      alt="Product preview"
+                      className="w-full h-48 object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={removeImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Upload Button */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
                   />
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    className="px-3"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center space-x-2"
                   >
                     <Upload className="w-4 h-4" />
+                    <span>{uploadedImage ? 'Change Image' : 'Upload Image'}</span>
                   </Button>
+                  
+                  {/* Fallback URL input */}
+                  {!uploadedImage && (
+                    <div className="flex-1">
+                      <Input
+                        placeholder="Or enter image URL"
+                        value={formData.imageUrl}
+                        onChange={handleInputChange}
+                        name="imageUrl"
+                      />
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-gray-500">
-                  Leave empty to use placeholder image
+                
+                <p className="text-sm text-gray-500">
+                  Upload a local image or enter an image URL. Max size: 5MB
                 </p>
               </div>
 

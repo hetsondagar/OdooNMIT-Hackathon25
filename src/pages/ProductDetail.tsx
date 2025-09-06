@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { productsAPI, cartAPI, wishlistAPI } from '@/services/api';
 import { Product } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ const ProductDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -37,25 +39,45 @@ const ProductDetail: React.FC = () => {
     }
   }, [id]);
 
-  const loadProduct = () => {
+  const loadProduct = async () => {
     if (!id) return;
 
     try {
-      const foundProduct = dataStore.getProductById(id);
-      if (foundProduct) {
-        setProduct(foundProduct);
+      setIsLoading(true);
+      setError('');
+      const response = await productsAPI.getById(id);
+      if (response.success && response.data?.product) {
+        setProduct(response.data.product);
+        // Check if product is in wishlist
+        if (user) {
+          checkWishlistStatus(id);
+        }
       } else {
         setError('Product not found');
       }
-    } catch (error) {
-      setError('Failed to load product');
+    } catch (error: any) {
+      console.error('Error loading product:', error);
+      setError('Failed to load product. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAddToCart = () => {
+  const checkWishlistStatus = async (productId: string) => {
+    try {
+      const response = await wishlistAPI.get();
+      if (response.success && response.data?.wishlist) {
+        const isInWishlist = response.data.wishlist.some((item: any) => item.productId === productId);
+        setIsInWishlist(isInWishlist);
+      }
+    } catch (error) {
+      console.error('Error checking wishlist status:', error);
+    }
+  };
+
+  const handleAddToCart = async () => {
     if (!user) {
+      toast.error('Please login to add items to cart');
       navigate('/login');
       return;
     }
@@ -63,10 +85,18 @@ const ProductDetail: React.FC = () => {
     if (!product) return;
 
     try {
-      dataStore.addToCart(product.id, user.id);
-      setMessage('Product added to cart!');
-      setTimeout(() => setMessage(''), 3000);
-    } catch (error) {
+      const response = await cartAPI.add(product.id, 1);
+      if (response.success) {
+        toast.success('Product added to cart!');
+        setMessage('Product added to cart!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        toast.error('Failed to add product to cart');
+        setError('Failed to add product to cart');
+      }
+    } catch (error: any) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add product to cart. Please try again.');
       setError('Failed to add product to cart');
     }
   };
@@ -90,16 +120,49 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!product || !user || product.sellerId !== user.id) return;
 
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        dataStore.deleteProduct(product.id);
-        navigate('/my-listings');
-      } catch (error) {
+        const response = await productsAPI.delete(product.id);
+        if (response.success) {
+          toast.success('Product deleted successfully');
+          navigate('/my-listings');
+        } else {
+          toast.error('Failed to delete product');
+          setError('Failed to delete product');
+        }
+      } catch (error: any) {
+        console.error('Error deleting product:', error);
+        toast.error('Failed to delete product. Please try again.');
         setError('Failed to delete product');
       }
+    }
+  };
+
+  const handleToggleWishlist = async () => {
+    if (!user) {
+      toast.error('Please login to add items to wishlist');
+      navigate('/login');
+      return;
+    }
+
+    if (!product) return;
+
+    try {
+      if (isInWishlist) {
+        await wishlistAPI.remove(product.id);
+        setIsInWishlist(false);
+        toast.success('Removed from wishlist');
+      } else {
+        await wishlistAPI.add(product.id);
+        setIsInWishlist(true);
+        toast.success('Added to wishlist');
+      }
+    } catch (error: any) {
+      console.error('Error toggling wishlist:', error);
+      toast.error('Failed to update wishlist. Please try again.');
     }
   };
 
@@ -197,7 +260,7 @@ const ProductDetail: React.FC = () => {
                   )}
                 </div>
                 <div className="text-3xl font-bold text-green-600">
-                  ${product.price.toFixed(2)}
+                  ${(parseFloat(product.price) || 0).toFixed(2)}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -259,9 +322,14 @@ const ProductDetail: React.FC = () => {
                 )}
 
                 <div className="flex space-x-2 pt-4">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Heart className="w-4 h-4 mr-2" />
-                    Save
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className={`flex-1 ${isInWishlist ? 'bg-red-50 text-red-600 border-red-200' : ''}`}
+                    onClick={handleToggleWishlist}
+                  >
+                    <Heart className={`w-4 h-4 mr-2 ${isInWishlist ? 'fill-current' : ''}`} />
+                    {isInWishlist ? 'Saved' : 'Save'}
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1">
                     <Share2 className="w-4 h-4 mr-2" />
@@ -277,39 +345,11 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Related Products */}
+        {/* Related Products - TODO: Implement with backend API */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">More from this seller</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {dataStore.getProductsBySeller(product.sellerId)
-              .filter(p => p.id !== product.id)
-              .slice(0, 4)
-              .map((relatedProduct) => (
-                <Card key={relatedProduct.id} className="group hover:shadow-lg transition-shadow">
-                  <CardContent className="p-0">
-                    <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                      <img
-                        src={relatedProduct.imageUrl || '/placeholder.svg'}
-                        alt={relatedProduct.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-medium text-gray-900 mb-1 line-clamp-2">
-                        {relatedProduct.title}
-                      </h3>
-                      <p className="text-lg font-bold text-green-600">
-                        ${relatedProduct.price.toFixed(2)}
-                      </p>
-                      <Link to={`/products/${relatedProduct.id}`}>
-                        <Button variant="outline" size="sm" className="w-full mt-2">
-                          View Details
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="text-center py-8 text-gray-500">
+            <p>Related products will be loaded from the backend</p>
           </div>
         </div>
       </div>

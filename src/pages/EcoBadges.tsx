@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { badgesAPI, purchasesAPI } from '@/services/api';
+import { toast } from 'sonner';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { EcoBadge } from '@/components/ui/eco-badge';
@@ -349,20 +350,50 @@ const EcoBadges: React.FC = () => {
       
       try {
         if (user) {
-          const purchases = dataStore.getPurchasesByUser(user.id);
-          const totalPurchases = purchases.length;
-          const totalSaved = totalPurchases * 2.5;
-          
-          const userBadges = createUserBadges(totalPurchases, totalSaved);
-          setBadges(userBadges);
-          setTotalPoints(userBadges.filter(b => b.unlocked).reduce((sum, b) => sum + b.points, 0));
+          // Try to get badges from backend first
+          const badgesResponse = await badgesAPI.getUserBadges();
+          if (badgesResponse.success && badgesResponse.data?.badges) {
+            // Transform backend badges to match frontend interface
+            const transformedBadges: Badge[] = badgesResponse.data.badges.map((badge: any) => ({
+              id: badge.id,
+              title: badge.title,
+              description: badge.description,
+              icon: getBadgeIcon(badge.iconName),
+              level: badge.level,
+              category: badge.category,
+              unlocked: badge.unlocked,
+              progress: badge.progress,
+              maxProgress: badge.maxProgress,
+              points: badge.points,
+              unlockedAt: badge.unlockedAt ? new Date(badge.unlockedAt) : undefined
+            }));
+            setBadges(transformedBadges);
+            setTotalPoints(transformedBadges.filter(b => b.unlocked).reduce((sum, b) => sum + b.points, 0));
+          } else {
+            // Fallback: calculate badges from purchases
+            const purchasesResponse = await purchasesAPI.getAll();
+            if (purchasesResponse.success && purchasesResponse.data?.purchases) {
+              const userPurchases = purchasesResponse.data.purchases.filter((purchase: any) => purchase.userId === user.id);
+              const totalPurchases = userPurchases.length;
+              const totalSaved = totalPurchases * 2.5;
+              
+              const userBadges = createUserBadges(totalPurchases, totalSaved);
+              setBadges(userBadges);
+              setTotalPoints(userBadges.filter(b => b.unlocked).reduce((sum, b) => sum + b.points, 0));
+            } else {
+              toast.error('Failed to load badges');
+              setBadges(DEMO_BADGES);
+              setTotalPoints(2760);
+            }
+          }
         } else {
           setBadges(DEMO_BADGES);
           setTotalPoints(2760);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading badges:', error);
         setError('Failed to load badges. Please try again.');
+        toast.error('Failed to load badges. Please try again.');
         // Fallback to demo badges on error
         setBadges(DEMO_BADGES);
         setTotalPoints(2760);
@@ -373,6 +404,26 @@ const EcoBadges: React.FC = () => {
 
     loadBadges();
   }, [user]);
+
+  // Helper function to get badge icon component
+  const getBadgeIcon = (iconName: string) => {
+    const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
+      'leaf': Leaf,
+      'shopping-bag': ShoppingBag,
+      'trophy': Trophy,
+      'recycle': Recycle,
+      'zap': Zap,
+      'star': Star,
+      'users': Users,
+      'share2': Share2,
+      'heart': Heart,
+      'calendar': Calendar,
+      'gift': Gift,
+      'trending-up': TrendingUp,
+      'award': Award
+    };
+    return iconMap[iconName] || Star;
+  };
 
   // Memoized computed values for performance
   const filteredBadges = useMemo(() => 

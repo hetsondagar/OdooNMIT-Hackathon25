@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { productsAPI, cartAPI, wishlistAPI } from '@/services/api';
 import { Product, ProductCategory } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,7 +11,11 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { PremiumProductGrid } from '@/components/ui/premium-product-card';
 import { FloatingActions, ScrollToTop } from '@/components/ui/floating-actions';
+<<<<<<< HEAD
 import PageHeader from '@/components/PageHeader';
+=======
+import Header from '@/components/Layout/Header';
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
 import { 
   Search, 
   Filter, 
@@ -30,18 +35,51 @@ const Products: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('newest');
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadProducts();
-  }, []);
+    loadFavorites();
+  }, [user]);
 
   useEffect(() => {
     filterAndSortProducts();
   }, [products, searchQuery, selectedCategory, sortBy]);
 
-  const loadProducts = () => {
-    const allProducts = dataStore.getProducts();
-    setProducts(allProducts);
+  const loadProducts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await productsAPI.getAll();
+      if (response.success && response.data?.products) {
+        setProducts(response.data.products);
+      } else {
+        setError('Failed to load products');
+      }
+    } catch (error: any) {
+      console.error('Error loading products:', error);
+      setError('Failed to load products. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFavorites = async () => {
+    if (!user) {
+      setFavorites([]);
+      return;
+    }
+
+    try {
+      const response = await wishlistAPI.get();
+      if (response.success && response.data?.wishlistItems) {
+        const favoriteIds = response.data.wishlistItems.map((item: any) => item.productId);
+        setFavorites(favoriteIds);
+      }
+    } catch (error: any) {
+      console.error('Error loading favorites:', error);
+    }
   };
 
   const filterAndSortProducts = () => {
@@ -82,32 +120,65 @@ const Products: React.FC = () => {
     setFilteredProducts(filtered);
   };
 
-  const handleAddToCart = (productId: string) => {
+  const handleAddToCart = async (productId: string) => {
     if (!user) {
-      // Redirect to login if not authenticated
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    // Find the product to check if it belongs to the current user
+    const product = products.find(p => p.id === productId);
+    if (product && product.sellerId === user.id) {
+      toast.error('You cannot add your own product to cart!');
       return;
     }
     
     try {
-      dataStore.addToCart(productId, user.id);
-      // You could add a toast notification here
-    } catch (error) {
+      const response = await cartAPI.add(productId, 1);
+      if (response.success) {
+        toast.success('Item added to cart!');
+      } else {
+        toast.error('Failed to add item to cart');
+      }
+    } catch (error: any) {
       console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.');
     }
   };
 
-  const handleToggleFavorite = (productId: string) => {
-    setFavorites(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
+  const handleToggleFavorite = async (productId: string) => {
+    if (!user) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    try {
+      if (favorites.includes(productId)) {
+        await wishlistAPI.remove(productId);
+        setFavorites(prev => prev.filter(id => id !== productId));
+        toast.success('Removed from wishlist');
+      } else {
+        await wishlistAPI.add(productId);
+        setFavorites(prev => [...prev, productId]);
+        toast.success('Added to wishlist');
+      }
+    } catch (error: any) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Failed to update wishlist. Please try again.');
+    }
   };
 
   const categories = Object.values(ProductCategory);
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+=======
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30">
+      {/* Header Navigation */}
+      <Header />
+      
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary via-primary/90 to-primary/80">
         <div className="absolute inset-0 bg-black/10" />
@@ -197,7 +268,30 @@ const Products: React.FC = () => {
         </GlassCard>
 
         {/* Products Grid */}
-        {filteredProducts.length === 0 ? (
+        {isLoading ? (
+          <GlassCard className="text-center py-16">
+            <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
+              <Search className="w-12 h-12 text-green-400 animate-spin" />
+            </div>
+            <h3 className="text-2xl font-semibold text-foreground mb-3">Loading products...</h3>
+            <p className="text-muted-foreground">
+              Discovering amazing sustainable finds for you
+            </p>
+          </GlassCard>
+        ) : error ? (
+          <GlassCard className="text-center py-16">
+            <div className="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="w-12 h-12 text-red-400" />
+            </div>
+            <h3 className="text-2xl font-semibold text-foreground mb-3">Error loading products</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              {error}
+            </p>
+            <Button onClick={loadProducts} variant="outline">
+              Try Again
+            </Button>
+          </GlassCard>
+        ) : filteredProducts.length === 0 ? (
           <GlassCard className="text-center py-16">
             <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
               <Search className="w-12 h-12 text-gray-400" />

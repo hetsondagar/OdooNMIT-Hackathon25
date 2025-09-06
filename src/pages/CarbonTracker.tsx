@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { carbonAPI, purchasesAPI } from '@/services/api';
+import { toast } from 'sonner';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { SustainabilityTracker } from '@/components/ui/eco-badge';
@@ -35,26 +36,40 @@ const CarbonTracker: React.FC = () => {
     }
   }, [user]);
 
-  const loadCarbonData = () => {
+  const loadCarbonData = async () => {
     if (!user) return;
 
     try {
-      const purchases = dataStore.getPurchasesByUser(user.id);
-      const totalSaved = purchases.length * 2.5; // 2.5kg CO2 per item
-      const itemsRecycled = purchases.length;
-      const treesEquivalent = Math.round(totalSaved / 22); // 1 tree absorbs ~22kg CO2/year
-      const energySaved = Math.round(totalSaved * 0.5); // kWh equivalent
+      // Try to get carbon data from backend first
+      const carbonResponse = await carbonAPI.getUserData();
+      if (carbonResponse.success && carbonResponse.data) {
+        setCarbonData(carbonResponse.data);
+        return;
+      }
 
-      setCarbonData({
-        totalSaved,
-        monthlyGoal: 50,
-        weeklySaved: totalSaved / 4,
-        itemsRecycled,
-        treesEquivalent,
-        energySaved
-      });
-    } catch (error) {
+      // Fallback: calculate from purchases
+      const purchasesResponse = await purchasesAPI.getAll();
+      if (purchasesResponse.success && purchasesResponse.data?.purchases) {
+        const userPurchases = purchasesResponse.data.purchases.filter((purchase: any) => purchase.userId === user.id);
+        const totalSaved = userPurchases.length * 2.5; // 2.5kg CO2 per item
+        const itemsRecycled = userPurchases.length;
+        const treesEquivalent = Math.round(totalSaved / 22); // 1 tree absorbs ~22kg CO2/year
+        const energySaved = Math.round(totalSaved * 0.5); // kWh equivalent
+
+        setCarbonData({
+          totalSaved,
+          monthlyGoal: 50,
+          weeklySaved: totalSaved / 4,
+          itemsRecycled,
+          treesEquivalent,
+          energySaved
+        });
+      } else {
+        toast.error('Failed to load carbon data');
+      }
+    } catch (error: any) {
       console.error('Error loading carbon data:', error);
+      toast.error('Failed to load carbon data. Please try again.');
     }
   };
 

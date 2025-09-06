@@ -58,6 +58,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success && response.data?.user) {
         setUser(response.data.user);
         toast.success('Login successful! Welcome back!');
+        // Force a page refresh to ensure all components are properly initialized
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
         return true;
       } else {
         toast.error(response.message || 'Login failed. Please check your credentials.');
@@ -85,6 +89,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success && response.data?.user) {
         setUser(response.data.user);
         toast.success('Registration successful! Welcome to EcoFinds!');
+        // Force a page refresh to ensure all components are properly initialized
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
         return true;
       } else {
         toast.error(response.message || 'Registration failed. Please try again.');

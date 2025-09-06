@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { cartAPI } from '@/services/api';
 import { CartItem } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+<<<<<<< HEAD
 import PageHeader from '@/components/PageHeader';
+=======
+import Header from '@/components/Layout/Header';
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
 import { 
   ShoppingCart, 
   Trash2, 
@@ -34,83 +39,111 @@ const Cart: React.FC = () => {
     }
   }, [user, navigate]);
 
-  const loadCartItems = () => {
+  const loadCartItems = async () => {
     if (!user) return;
 
     try {
-      const items = dataStore.getCartItems(user.id);
-      setCartItems(items);
-    } catch (error) {
+      setIsLoading(true);
+      const response = await cartAPI.get();
+      if (response.success && response.data?.cartItems) {
+        setCartItems(response.data.cartItems);
+      } else {
+        setCartItems([]);
+      }
+    } catch (error: any) {
       console.error('Error loading cart items:', error);
+      toast.error('Failed to load cart items');
+      setCartItems([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateQuantity = (itemId: string, newQuantity: number) => {
+  const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeItem(itemId);
       return;
     }
 
     try {
-      const updatedItems = cartItems.map(item => 
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      );
-      setCartItems(updatedItems);
-      // Update in data store
       const item = cartItems.find(i => i.id === itemId);
-      if (item) {
-        // Remove and re-add with new quantity
-        dataStore.removeFromCart(itemId);
-        for (let i = 0; i < newQuantity; i++) {
-          dataStore.addToCart(item.productId, user!.id);
-        }
+      if (!item) return;
+
+      const response = await cartAPI.update(item.productId, newQuantity);
+      if (response.success) {
+        const updatedItems = cartItems.map(cartItem => 
+          cartItem.id === itemId ? { ...cartItem, quantity: newQuantity } : cartItem
+        );
+        setCartItems(updatedItems);
+        toast.success('Quantity updated');
+      } else {
+        toast.error('Failed to update quantity');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating quantity:', error);
+      toast.error('Failed to update quantity. Please try again.');
     }
   };
 
-  const removeItem = (itemId: string) => {
+  const removeItem = async (itemId: string) => {
     try {
-      dataStore.removeFromCart(itemId);
-      setCartItems(cartItems.filter(item => item.id !== itemId));
-      setMessage('Item removed from cart');
-      setTimeout(() => setMessage(''), 3000);
-    } catch (error) {
+      const item = cartItems.find(i => i.id === itemId);
+      if (!item) return;
+
+      const response = await cartAPI.remove(itemId);
+      if (response.success) {
+        setCartItems(cartItems.filter(cartItem => cartItem.id !== itemId));
+        toast.success('Item removed from cart');
+        setMessage('Item removed from cart');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        toast.error('Failed to remove item');
+      }
+    } catch (error: any) {
       console.error('Error removing item:', error);
+      toast.error('Failed to remove item. Please try again.');
     }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     if (window.confirm('Are you sure you want to clear your cart?')) {
       try {
-        dataStore.clearCart(user!.id);
-        setCartItems([]);
-        setMessage('Cart cleared');
-        setTimeout(() => setMessage(''), 3000);
-      } catch (error) {
+        const response = await cartAPI.clear();
+        if (response.success) {
+          setCartItems([]);
+          toast.success('Cart cleared');
+          setMessage('Cart cleared');
+          setTimeout(() => setMessage(''), 3000);
+        } else {
+          toast.error('Failed to clear cart');
+        }
+      } catch (error: any) {
         console.error('Error clearing cart:', error);
+        toast.error('Failed to clear cart. Please try again.');
       }
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cartItems.length === 0) return;
 
     try {
-      // Create purchases for all cart items
-      cartItems.forEach(item => {
-        dataStore.createPurchase(item.productId, user!.id);
-      });
-      
-      setMessage('Purchase successful! Thank you for your eco-friendly choices.');
-      setTimeout(() => {
-        navigate('/purchases');
-      }, 2000);
-    } catch (error) {
+      // For now, we'll simulate checkout by clearing the cart
+      // In a real app, you'd integrate with a payment processor
+      const response = await cartAPI.clear();
+      if (response.success) {
+        setCartItems([]);
+        toast.success('Purchase successful! Thank you for your eco-friendly choices.');
+        setMessage('Purchase successful! Thank you for your eco-friendly choices.');
+        setTimeout(() => {
+          navigate('/purchases');
+        }, 2000);
+      } else {
+        toast.error('Checkout failed. Please try again.');
+      }
+    } catch (error: any) {
       console.error('Error during checkout:', error);
+      toast.error('Checkout failed. Please try again.');
     }
   };
 
@@ -137,9 +170,24 @@ const Cart: React.FC = () => {
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-background">
       {/* Header */}
       <PageHeader title="Shopping Cart" />
+=======
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <Header />
+      
+      {/* Page Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center py-4">
+            <h1 className="text-2xl font-bold text-gray-900">Shopping Cart</h1>
+          </div>
+        </div>
+      </div>
+>>>>>>> d337f7639639938b175ce07271703f293dfa0f86
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {message && (
@@ -232,10 +280,10 @@ const Cart: React.FC = () => {
                       {/* Price */}
                       <div className="text-right">
                         <p className="font-medium text-gray-900">
-                          ${(item.product.price * item.quantity).toFixed(2)}
+                          ${((parseFloat(item.product.price) || 0) * item.quantity).toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">
-                          ${item.product.price.toFixed(2)} each
+                          ${(parseFloat(item.product.price) || 0).toFixed(2)} each
                         </p>
                       </div>
 
