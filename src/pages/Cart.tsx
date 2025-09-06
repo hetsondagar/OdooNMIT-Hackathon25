@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { cartAPI } from '@/services/api';
+import { cartAPI, purchasesAPI } from '@/services/api';
 import { CartItem } from '@/types';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('offline');
 
   useEffect(() => {
     if (user) {
@@ -124,18 +125,31 @@ const Cart: React.FC = () => {
     if (cartItems.length === 0) return;
 
     try {
-      // For now, we'll simulate checkout by clearing the cart
-      // In a real app, you'd integrate with a payment processor
-      const response = await cartAPI.clear();
-      if (response.success) {
+      // Create purchases for each item in the cart
+      const purchasePromises = cartItems.map(async (item) => {
+        return await purchasesAPI.create({
+          productId: item.product.id,
+          quantity: item.quantity,
+          paymentMethod: selectedPaymentMethod
+        });
+      });
+
+      const results = await Promise.all(purchasePromises);
+      
+      // Check if all purchases were successful
+      const allSuccessful = results.every(result => result.success);
+      
+      if (allSuccessful) {
+        // Clear the cart after successful purchases
+        await cartAPI.clear();
         setCartItems([]);
-        toast.success('Purchase successful! Thank you for your eco-friendly choices.');
-        setMessage('Purchase successful! Thank you for your eco-friendly choices.');
+        toast.success('Purchase successful! Thank you for your eco-friendly choices. Contact 9023684742@ypl for payment details.');
+        setMessage('Purchase successful! Thank you for your eco-friendly choices. Contact 9023684742@ypl for payment details.');
         setTimeout(() => {
           navigate('/purchases');
         }, 2000);
       } else {
-        toast.error('Checkout failed. Please try again.');
+        toast.error('Some items could not be purchased. Please try again.');
       }
     } catch (error: any) {
       console.error('Error during checkout:', error);
@@ -342,6 +356,72 @@ const Cart: React.FC = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Payment Method Selection */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-medium text-foreground">Payment Method</h4>
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-3 p-3 border border-border/50 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="offline"
+                          checked={selectedPaymentMethod === 'offline'}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                          className="text-primary focus:ring-primary"
+                        />
+                        <div className="flex items-center space-x-2">
+                          <DollarSign className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">Offline Payment (All Methods Accepted)</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground ml-7">
+                          Contact: 9023684742@ypl for payment details
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-3 p-3 border border-border/50 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="upi"
+                          checked={selectedPaymentMethod === 'upi'}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                          className="text-primary focus:ring-primary"
+                        />
+                        <div className="flex items-center space-x-2">
+                          <CreditCard className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">UPI Payment</span>
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-3 p-3 border border-border/50 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="card"
+                          checked={selectedPaymentMethod === 'card'}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                          className="text-primary focus:ring-primary"
+                        />
+                        <div className="flex items-center space-x-2">
+                          <CreditCard className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">Credit/Debit Card</span>
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-3 p-3 border border-border/50 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="netbanking"
+                          checked={selectedPaymentMethod === 'netbanking'}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                          className="text-primary focus:ring-primary"
+                        />
+                        <div className="flex items-center space-x-2">
+                          <CreditCard className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">Net Banking</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
 
                   <Button
                     onClick={handleCheckout}

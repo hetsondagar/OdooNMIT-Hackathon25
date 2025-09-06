@@ -6,70 +6,11 @@ import TrustScore from "@/components/Trust/TrustScore";
 import SwapOption from "@/components/Products/SwapOption";
 
 const TrendingListings = () => {
-  const trendingProducts = [
-    {
-      id: 1,
-      title: "Vintage Leather Jacket",
-      price: 89,
-      image: "/api/placeholder/300/300",
-      views: 1240,
-      likes: 89,
-      trending: true,
-      seller: "VintageVibes",
-      trustScore: 4.8,
-      reviewCount: 156,
-      isSwapAllowed: true,
-      category: "Fashion",
-      carbonSaved: 15.7
-    },
-    {
-      id: 2,
-      title: "MacBook Pro 2019",
-      price: 1200,
-      image: "/api/placeholder/300/300",
-      views: 2100,
-      likes: 156,
-      trending: true,
-      seller: "TechGuru",
-      trustScore: 4.9,
-      reviewCount: 203,
-      isSwapAllowed: false,
-      category: "Electronics",
-      carbonSaved: 45.2
-    },
-    {
-      id: 3,
-      title: "Ceramic Plant Pots Set",
-      price: 34,
-      image: "/api/placeholder/300/300",
-      views: 890,
-      likes: 67,
-      trending: false,
-      seller: "GreenThumb",
-      trustScore: 4.6,
-      reviewCount: 89,
-      isSwapAllowed: true,
-      category: "Home & Garden",
-      carbonSaved: 8.3
-    }
-  ];
+  // Trending products will be loaded from the backend API
+  const trendingProducts: any[] = [];
 
-  const personalizedRecs = [
-    {
-      id: 4,
-      title: "Sustainable Sneakers",
-      price: 65,
-      reason: "Based on your Fashion purchases",
-      match: 95
-    },
-    {
-      id: 5,
-      title: "Bamboo Desk Organizer",
-      price: 28,
-      reason: "People like you also bought",
-      match: 87
-    }
-  ];
+  // Personalized recommendations will be loaded from the backend API
+  const personalizedRecs: any[] = [];
 
   return (
     <Card className="bg-gradient-card shadow-eco border-eco-light/30">
