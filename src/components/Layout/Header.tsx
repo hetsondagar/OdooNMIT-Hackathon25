@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, Leaf, LogOut } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, Leaf, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { dataStore } from "@/lib/data";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PremiumButton } from "@/components/ui/premium-button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,21 +40,60 @@ const Header = () => {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-            Browse
-          </Link>
-          <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-            Categories
-          </Link>
-          <Link to="/platform" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-            Community
-          </Link>
-          <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-            About
-          </Link>
-        </nav>
+               {/* Desktop Navigation */}
+               <nav className="hidden md:flex items-center gap-6">
+                 <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
+                   Browse
+                 </Link>
+                 
+                 <DropdownMenu>
+                   <DropdownMenuTrigger asChild>
+                     <Button variant="ghost" className="text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105 gap-1">
+                       Features
+                       <ChevronDown className="h-3 w-3" />
+                     </Button>
+                   </DropdownMenuTrigger>
+                   <DropdownMenuContent align="start" className="w-56 glass-card">
+                     <DropdownMenuItem asChild>
+                       <Link to="/carbon-tracker" className="flex items-center gap-2">
+                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                         Carbon Tracker
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                       <Link to="/eco-badges" className="flex items-center gap-2">
+                         <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                         Eco Badges
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                       <Link to="/community" className="flex items-center gap-2">
+                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                         Community
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                       <Link to="/social-share" className="flex items-center gap-2">
+                         <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                         Social Share
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuSeparator />
+                     <DropdownMenuItem asChild>
+                       <Link to="/trending" className="flex items-center gap-2">
+                         <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                         Trending
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                       <Link to="/wishlist" className="flex items-center gap-2">
+                         <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                         Wishlist
+                       </Link>
+                     </DropdownMenuItem>
+                   </DropdownMenuContent>
+                 </DropdownMenu>
+               </nav>
 
         {/* Search Bar - Desktop */}
         <div className="hidden lg:flex items-center gap-2 flex-1 max-w-md mx-8">
@@ -68,24 +114,24 @@ const Header = () => {
             <>
               <Link to="/cart">
                 <Button variant="ghost" size="icon" className="relative hover-lift">
-                  <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="h-5 w-5" />
                   {cartItemCount > 0 && (
                     <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-xs font-bold text-white flex items-center justify-center shadow-lg animate-pulse">
                       {cartItemCount}
-                    </span>
+            </span>
                   )}
-                </Button>
+          </Button>
               </Link>
-              
+          
               <Link to="/dashboard">
                 <Button variant="ghost" size="icon" className="hover-lift">
-                  <User className="h-5 w-5" />
-                </Button>
+            <User className="h-5 w-5" />
+          </Button>
               </Link>
 
               <Link to="/products/new">
                 <PremiumButton variant="eco" size="sm" className="hidden sm:inline-flex">
-                  Sell Item
+            Sell Item
                 </PremiumButton>
               </Link>
 
@@ -99,7 +145,7 @@ const Header = () => {
               <Link to="/login">
                 <Button variant="ghost" size="sm" className="hover-lift">
                   Sign In
-                </Button>
+          </Button>
               </Link>
               <Link to="/register">
                 <PremiumButton variant="eco" size="sm">
@@ -139,21 +185,36 @@ const Header = () => {
             <Link to="/products" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
               Browse
             </Link>
-            <Link to="/products" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-              Categories
-            </Link>
-            <Link to="/platform" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-              Community
-            </Link>
-            <Link to="/" className="py-2 text-sm font-medium text-foreground/80 hover:text-green-600 transition-all duration-300 hover:scale-105">
-              About
-            </Link>
+            
+            <div className="py-2">
+              <div className="text-sm font-medium text-foreground/60 mb-2">Features</div>
+              <div className="pl-4 space-y-2">
+                <Link to="/carbon-tracker" className="block py-1 text-sm text-foreground/80 hover:text-green-600 transition-all duration-300">
+                  Carbon Tracker
+                </Link>
+                <Link to="/eco-badges" className="block py-1 text-sm text-foreground/80 hover:text-green-600 transition-all duration-300">
+                  Eco Badges
+                </Link>
+                <Link to="/community" className="block py-1 text-sm text-foreground/80 hover:text-green-600 transition-all duration-300">
+                  Community
+                </Link>
+                <Link to="/social-share" className="block py-1 text-sm text-foreground/80 hover:text-green-600 transition-all duration-300">
+                  Social Share
+                </Link>
+                <Link to="/trending" className="block py-1 text-sm text-foreground/80 hover:text-green-600 transition-all duration-300">
+                  Trending
+                </Link>
+                <Link to="/wishlist" className="block py-1 text-sm text-foreground/80 hover:text-green-600 transition-all duration-300">
+                  Wishlist
+                </Link>
+              </div>
+            </div>
             
             {isAuthenticated ? (
               <>
                 <Link to="/products/new" className="mt-2">
                   <PremiumButton variant="eco" className="w-full">
-                    Sell Item
+              Sell Item
                   </PremiumButton>
                 </Link>
                 <Link to="/cart" className="mt-2">
@@ -175,7 +236,7 @@ const Header = () => {
                 <Link to="/login" className="mt-2">
                   <Button variant="outline" className="w-full hover-lift">
                     Sign In
-                  </Button>
+            </Button>
                 </Link>
                 <Link to="/register" className="mt-2">
                   <PremiumButton variant="eco" className="w-full">
